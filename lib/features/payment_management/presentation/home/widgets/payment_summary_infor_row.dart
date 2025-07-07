@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 
-import '../add_new_payment_view_model.dart';
+import '../../add_new_payment/add_new_payment_view_model.dart';
 
 class PaymentSummaryInfoRow extends StatelessWidget {
   PaymentSummaryInfoRow({

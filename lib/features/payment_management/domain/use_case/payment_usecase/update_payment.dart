@@ -10,7 +10,7 @@ class UpdatePayment extends BaseParamsUseCase<bool, PaymentInfoEntity> {
   UpdatePayment(this.repository);
   final PaymentRepository repository;
   @override
-  ApiResultModel<bool> call(payment) {
+  Future<ApiResultModel<bool>> call(payment) async {
     // TODO: implement call
     return repository.updatePayment(paymentInfoEntity: payment);
   }

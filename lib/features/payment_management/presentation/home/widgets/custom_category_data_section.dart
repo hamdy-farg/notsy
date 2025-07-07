@@ -4,7 +4,7 @@ import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/core/utils/validators/dart/input_validators.dart';
 
 import '../../../../../core/utils/global_widgets/custom_textFormField_widget.dart';
-import '../add_new_payment_view_model.dart';
+import '../../add_new_payment/add_new_payment_view_model.dart';
 import 'category_payment_section_widget.dart';
 
 class CustomCategoryDataWidgetSection extends StatelessWidget {
@@ -15,7 +15,9 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
     required this.provider,
     required this.index,
     required this.formKey,
+    required this.isEdited,
   });
+  bool isEdited;
   GlobalKey<FormState> formKey;
   void Function()? onRemove;
   String? dropDownHint;
@@ -24,6 +26,10 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final itemsNameList = provider.fitchedCategoryList
+        .map((e) => e.name ?? "")
+        .toList();
+
     return Padding(
       padding: EdgeInsets.only(top: 10),
       child: Container(
@@ -39,6 +45,13 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
             Container(
               child: CustomDropdown<String>.search(
                 decoration: CustomDropdownDecoration(
+                  hintStyle: isEdited
+                      ? TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.w,
+                          color: Colors.black,
+                        )
+                      : null,
                   closedBorder: Border.all(
                     width: 1,
                     color: provider.categoryEntityList[index].name != ""
@@ -46,10 +59,10 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                         : Colors.red,
                   ),
                 ),
-                hintText: dropDownHint,
-                items: provider.fitchedCategoryList
-                    .map((e) => e.name ?? "")
-                    .toList(),
+                hintText: isEdited
+                    ? provider.categoryEntityList[index].name
+                    : dropDownHint,
+                items: itemsNameList,
 
                 onChanged: (value) {
                   final category = provider.fitchedCategoryList.firstWhere(
@@ -58,6 +71,7 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                   final cost = category.cost;
                   final description = category.description;
                   final original_color_value = category.original_color_value;
+
                   provider.setNewCategoryEntity(
                     index: index,
                     name: value,

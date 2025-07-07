@@ -3,7 +3,7 @@ import 'package:notsy/core/utils/helper/extension_function/color_extension.dart'
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/features/payment_management/presentation/home/widgets/payment_summary_infor_row.dart';
 
-import '../add_new_payment_view_model.dart';
+import '../../add_new_payment/add_new_payment_view_model.dart';
 
 class CategoryPaymentSection extends StatelessWidget {
   const CategoryPaymentSection({

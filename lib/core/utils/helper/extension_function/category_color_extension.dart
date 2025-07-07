@@ -46,9 +46,13 @@ extension CategoryListExtension on List<CategoryEntity> {
     if (unpaid_index != -1) {
       return "\$${this[unpaid_index].amount_paid ?? 0}// ";
     } else if (underpaid_index != -1) {
-      return "\$${this[underpaid_index].amount_paid ?? 0}/ //${this[underpaid_index].cost}";
+      return "\$${this[underpaid_index].amount_paid}/ //${(this[underpaid_index].cost ?? 0) * (this[underpaid_index].quantity ?? 0)} ";
     } else {
-      return "\$${this[0].amount_paid ?? 0}// ";
+      double total_amount = 0;
+      for (var element in this) {
+        total_amount = total_amount + (element.amount_paid ?? 0);
+      }
+      return "\$${total_amount ?? 0}// ";
     }
   }
 
@@ -61,11 +65,17 @@ extension CategoryListExtension on List<CategoryEntity> {
     );
 
     if (unpaid_index != -1) {
-      return "Need \$${this[unpaid_index].amount_paid ?? 0}";
+      return "Need \$${(this[unpaid_index].cost ?? 0) * (this[unpaid_index].quantity ?? 0)}";
     } else if (underpaid_index != -1) {
-      return "-\$${(this[underpaid_index].cost ?? 0) - (this[underpaid_index].amount_paid?.toDouble() ?? 0)}";
+      return "-\$${((this[underpaid_index].cost ?? 0) * (this[underpaid_index].quantity ?? 0)) - (this[underpaid_index].amount_paid?.toDouble() ?? 0)}";
     } else {
-      return "";
+      double total_cost = 0;
+      double total_amount = 0;
+      for (var element in this) {
+        total_cost = total_cost + (element.cost ?? 0) * (element.quantity ?? 0);
+        total_amount = total_amount + (element.amount_paid ?? 0);
+      }
+      return """${(total_cost - (total_amount)) == 0 ? "" : "over paid : ${(total_amount - (total_cost))}"}""";
     }
   }
 }

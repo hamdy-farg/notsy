@@ -24,6 +24,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
       input: filters.input,
       categoryNames: filters.categoryList,
       page: filters.page,
+      to: filters.to,
+      from: filters.from,
     );
   }
 
@@ -49,4 +51,13 @@ class PaymentRepositoryImpl implements PaymentRepository {
       paymentInfoEntity: paymentInfoEntity,
     );
   }
+
+  @override
+  ApiResultModel<List<PaymentInfoEntity>> getAllPayment() {
+    return localDataSource.getAllPaymentsInfo();
+  }
 }
+
+//
+// getAllPayments
+// getFilteredPayment categoy_list to from

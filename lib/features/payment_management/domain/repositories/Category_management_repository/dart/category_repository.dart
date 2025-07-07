@@ -8,6 +8,5 @@ abstract class CategoryRepository {
 
   ApiResultModel<bool> updateCategory({required CategoryEntity categoryEntity});
   ApiResultModel<CategoryEntity> getCategory({required int id});
-
   ApiResultModel<List<CategoryEntity>> getAllPaymentCategories();
 }

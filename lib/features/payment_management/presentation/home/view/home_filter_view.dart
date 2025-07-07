@@ -9,13 +9,13 @@ import 'package:notsy/core/utils/helper/extension_function/category_color_extens
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/category_entity.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
+import 'package:notsy/features/payment_management/presentation/add_new_payment/view/add_new_payment_view.dart';
 import 'package:notsy/features/payment_management/presentation/home/payment_filter_view_model.dart';
-import 'package:notsy/features/payment_management/presentation/home/view/add_new_payment_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/di/app_component/app_component.dart';
 import '../../../../../core/utils/helper/extension_function/responsive_ui_helper/responsive_config.dart';
-import '../add_new_payment_view_model.dart';
+import '../../add_new_payment/add_new_payment_view_model.dart';
 
 class HomeFilterView extends StatefulWidget {
   HomeFilterView({super.key});
@@ -25,17 +25,7 @@ class HomeFilterView extends StatefulWidget {
 }
 
 class _HomeFilterViewState extends State<HomeFilterView> {
-  late final _pagingController = PagingController<int, PaymentInfoEntity>(
-    getNextPageKey: (state) =>
-        state.lastPageIsEmpty ? null : state.nextIntPageKey,
-    fetchPage: (pageKey) {
-      _provider?.currentPage.value = pageKey;
-
-      return _paymentList;
-    },
-  );
   //
-  List<PaymentInfoEntity> _paymentList = <PaymentInfoEntity>[];
   List<CategoryEntity> _category_list = <CategoryEntity>[
     CategoryEntity(
       name: "All",
@@ -52,9 +42,8 @@ class _HomeFilterViewState extends State<HomeFilterView> {
     ) {
       log("listener is on $result");
       if (result is Success<List<PaymentInfoEntity>>) {
-        // _paymentList.clear();
-        _paymentList = (result.data);
-        log("${_paymentList}");
+        _provider?.paymentList = (result.data);
+        log("new PaymentList : ${_provider?.paymentList}");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -84,7 +73,9 @@ class _HomeFilterViewState extends State<HomeFilterView> {
             original_color_value: "2E7D32",
           ),
         );
+
         _category_list.addAll(result.data);
+        log("activated now ${_category_list}");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -108,7 +99,7 @@ class _HomeFilterViewState extends State<HomeFilterView> {
         body: SafeArea(
           child: BaseViewModelView<HomePaymentFilterViewModel>(
             onInitState: (HomePaymentFilterViewModel provider) async {
-              log("rebuild ttttttttttttttt ${_paymentList}");
+              // log("rebuild ttttttttttttttt ${_paymentList}");
               if (_provider != null) return; // prevent re-initializing
               _provider = provider;
               _provider?.filterPaymentInfo();
@@ -117,7 +108,7 @@ class _HomeFilterViewState extends State<HomeFilterView> {
               _listenToLocalPaymentList();
             },
             buildWidget: (HomePaymentFilterViewModel provider) {
-              log("rebuild ssssssssssssssssssssssss ${_paymentList.length}");
+              // log("rebuild ssssssssssssssssssssssss ${_paymentList.length}");
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -142,8 +133,8 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
+                          onTap: () async {
+                            final result = await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) =>
                                     ChangeNotifierProvider<
@@ -151,10 +142,18 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                                     >(
                                       create: (BuildContext context) =>
                                           locator<AddNewPaymentViewModel>(),
-                                      child: AddNewPaymentView(),
+                                      child: AddNewPaymentView(isEdited: false),
                                     ),
                               ),
                             );
+
+                            //
+                            if (result == "refresh") {
+                              _provider?.pagingController.refresh();
+                              await _provider?.setCurrentPage(0);
+                              await _provider?.getAllPaymentCategory();
+                            }
+                            //
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -186,7 +185,7 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                     child: TextFormField(
                       controller: provider.searchController,
                       onChanged: (value) async {
-                        _pagingController.refresh();
+                        _provider?.pagingController.refresh();
                         _provider?.currentPage.value = 0;
                         // provider.filterPaymentInfo();
                       },
@@ -268,7 +267,7 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                 onTap: () {
-                                  _pagingController.refresh();
+                                  _provider?.pagingController.refresh();
                                   _provider?.currentPage.value = 0;
                                   provider.selectedCategoryName.value = [
                                     _category_list[index].name ?? "",
@@ -336,13 +335,13 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                       backgroundColor: Color(0xff2E7D32),
 
                       onRefresh: () async {
-                        _pagingController.refresh();
+                        _provider?.pagingController.refresh();
                         _provider?.currentPage.value = 0;
-                        log("_payment list${_paymentList}");
-                        // await _provider!.getAllPaymentCategory();
+                        // log("_payment list${_paymentList}");
+                        await _provider!.getAllPaymentCategory();
                       },
                       child: PagingListener(
-                        controller: _pagingController,
+                        controller: _provider!.pagingController,
 
                         builder: (context, state, fetchNextPage) {
                           return PagedListView<int, PaymentInfoEntity>(
@@ -350,112 +349,146 @@ class _HomeFilterViewState extends State<HomeFilterView> {
                             fetchNextPage: fetchNextPage,
                             builderDelegate: PagedChildBuilderDelegate(
                               itemBuilder: (context, item, index) {
-                                return Container(
-                                  key: ValueKey(item.id),
-                                  padding: EdgeInsets.all(12),
-                                  margin: EdgeInsets.only(
-                                    bottom: 8,
-                                    right: 8.w,
-                                    left: 8.w,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Color(
-                                      item.category_list!
-                                          .getEffectiveCategoryColor(),
-                                    ).withOpacity(.09),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
+                                return GestureDetector(
+                                  onTap: () async {
+                                    final result = await Navigator.of(context)
+                                        .push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                ChangeNotifierProvider<
+                                                  AddNewPaymentViewModel
+                                                >(
+                                                  create:
+                                                      (BuildContext context) =>
+                                                          locator<
+                                                            AddNewPaymentViewModel
+                                                          >(),
+                                                  child: AddNewPaymentView(
+                                                    isEdited: true,
+                                                    paymentInfoEntity: item,
+                                                  ),
+                                                ),
+                                          ),
+                                        );
+
+                                    //
+                                    if (result == "refresh") {
+                                      _provider?.pagingController.refresh();
+                                      await _provider?.setCurrentPage(0);
+                                      await _provider?.getAllPaymentCategory();
+                                    }
+                                  },
+                                  child: Container(
+                                    key: ValueKey(item.id),
+                                    padding: EdgeInsets.all(12),
+                                    margin: EdgeInsets.only(
+                                      bottom: 8,
+                                      right: 8.w,
+                                      left: 8.w,
+                                    ),
+                                    decoration: BoxDecoration(
                                       color: Color(
                                         item.category_list!
                                             .getEffectiveCategoryColor(),
+                                      ).withOpacity(.09),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Color(
+                                          item.category_list!
+                                              .getEffectiveCategoryColor(),
+                                        ),
+                                        width: 1.3,
                                       ),
-                                      width: 1.3,
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "${item.name}",
-                                            style: TextStyle(
-                                              color: Color(0xff111827),
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14.w,
-                                            ),
-                                          ),
-                                          Text(
-                                            "${item.phone_number}",
-                                            style: TextStyle(
-                                              color: Color(0xff6B7280),
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 12.w,
-                                            ),
-                                          ),
-                                          Text(
-                                            "${item.category_list?.map((e) => e.name).toList().join(",")}",
-                                            style: TextStyle(
-                                              color: Color(0xff6B7280),
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 12.w,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      "${item.category_list?.getEffectiveCategoryAmount().split("//")[0]}",
-                                                  style: TextStyle(
-                                                    color: Color(
-                                                      item.category_list!
-                                                          .getEffectiveCategoryColor(),
-                                                    ),
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 13.w,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text:
-                                                      "${item.category_list?.getEffectiveCategoryAmount().split("//")[1]}",
-                                                  style: TextStyle(
-                                                    color: Color(0xff6B7280),
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 11.w,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                          Text(
-                                            "${item.category_list?.getEffectiveCategoryDescription()}",
-                                            style: TextStyle(
-                                              color: Color(
-                                                item.category_list!
-                                                    .getEffectiveCategoryColor(),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "${item.name}",
+                                              style: TextStyle(
+                                                color: Color(0xff111827),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14.w,
                                               ),
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 12.w,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                            Text(
+                                              "${item.phone_number}",
+                                              style: TextStyle(
+                                                color: Color(0xff6B7280),
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 12.w,
+                                              ),
+                                            ),
+
+                                            Text(
+                                              "${item.category_list?.map((e) => e.name).toList().join(",")}",
+                                              style: TextStyle(
+                                                color: Color(0xff6B7280),
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 12.w,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text:
+                                                        "${item.category_list?.getEffectiveCategoryAmount().split("//")[0]}",
+                                                    style: TextStyle(
+                                                      color: Color(
+                                                        item.category_list!
+                                                            .getEffectiveCategoryColor(),
+                                                      ),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 13.w,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text:
+                                                        "${item.category_list?.getEffectiveCategoryAmount().split("//")[1]}",
+                                                    style: TextStyle(
+                                                      color: Color(0xff6B7280),
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 11.w,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            Text(
+                                              "${item.category_list?.getEffectiveCategoryDescription()}",
+                                              style: TextStyle(
+                                                color: Color(
+                                                  item.category_list!
+                                                      .getEffectiveCategoryColor(),
+                                                ),
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 12.w,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },

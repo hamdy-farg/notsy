@@ -9,7 +9,7 @@ class DeleteCategory extends BaseParamsUseCase<bool, int> {
   DeleteCategory(this.repository);
   final CategoryRepository repository;
   @override
-  ApiResultModel<bool> call(id) {
+  Future<ApiResultModel<bool>> call(id) async {
     // TODO: implement call
     return repository.deleteCategory(id: id);
   }

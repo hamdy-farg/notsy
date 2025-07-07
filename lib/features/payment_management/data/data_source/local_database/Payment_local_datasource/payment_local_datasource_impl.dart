@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:injectable/injectable.dart';
+import 'package:notsy/core/common_data/data_source/local/local/local_database.dart';
 import 'package:notsy/core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import 'package:notsy/core/commondomain/entities/based_api_result_models/error_result_model.dart';
 import 'package:notsy/features/payment_management/data/data_source/local_database/Payment_local_datasource/payment_local_datasource.dart';
-import 'package:notsy/features/payment_management/data/data_source/local_database/local_database.dart';
 import 'package:notsy/features/payment_management/data/models/payment_local_models/payment_local_info_model.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/category_entity.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
@@ -46,6 +46,8 @@ class PaymentLocalDataSourceImpl implements PaymentLocalDatasource {
     String? input,
     List<String>? categoryNames,
     int? page,
+    DateTime? from,
+    DateTime? to,
   }) {
     try {
       // deletePaymentInfo(paymentId: 1);
@@ -140,12 +142,21 @@ class PaymentLocalDataSourceImpl implements PaymentLocalDatasource {
       }
       int pageSize = 10;
       log("dididdid${db.getAll<PaymentInfoLocalModel>()!.length}");
-      final query = builder.build()
-        ..limit = pageSize
-        ..offset = (page ?? 0) * pageSize;
 
+      final query = builder.build();
+      if (from == null && to == null) {
+        query
+          ..limit = pageSize
+          ..offset = (page ?? 0) * pageSize;
+      }
       final result = query.find();
-
+      if (from != null && to != null) {
+        result.map(
+          (e) =>
+              (e.date?.isBefore(to) ?? DateTime.now().isBefore(to)) &&
+              (e.date?.isAfter(from) ?? DateTime.now().isBefore(to)),
+        );
+      }
       return ApiResultModel.success(
         data: result.map((e) => e.mapToEntity()).toList(),
       );
@@ -207,7 +218,7 @@ class PaymentLocalDataSourceImpl implements PaymentLocalDatasource {
           e.category_status = CategoryStatus.unpaid;
           e.color_value = "EF4444"; // red color
           return e;
-        } else if (e.amount_paid! < e.cost!) {
+        } else if (e.amount_paid! < ((e.cost ?? 0) * (e.quantity ?? 0))) {
           e.category_status = CategoryStatus.underpaid;
           e.color_value = "C2410C"; // yellow color
           return e;
@@ -234,10 +245,40 @@ class PaymentLocalDataSourceImpl implements PaymentLocalDatasource {
     required PaymentInfoEntity paymentInfoEntity,
   }) {
     try {
-      final result = db.update<PaymentInfoLocalModel>(
-        PaymentInfoLocalModel.fromEntity(paymentInfoEntity),
-      );
+      final payment = db.get<PaymentInfoLocalModel>(paymentInfoEntity.id!);
+      if (payment == null) {
+        return ApiResultModel.failure(
+          message: ErrorResultModel(message: "Payment not found."),
+        );
+      }
+      payment.name = paymentInfoEntity.name;
+      payment.phone_number = paymentInfoEntity.phone_number;
+      payment.date = paymentInfoEntity.date;
+      payment.payment_method = paymentInfoEntity.payment_method?.name ?? "cash";
+      payment.description = paymentInfoEntity.description;
+      payment.category_list.clear();
+
+      // Map and add updated categories
+      for (final cat in paymentInfoEntity.category_list ?? []) {
+        payment.category_list.add(CategoryLocalModel.fromEntity(cat));
+      }
+      final result = db.update<PaymentInfoLocalModel>(payment);
       return ApiResultModel.success(data: result);
+    } catch (e, stackTrace) {
+      return ApiResultModel.failure(
+        message: ErrorResultModel(message: e.toString()),
+      );
+    }
+  }
+
+  @override
+  ApiResultModel<List<PaymentInfoEntity>> getAllPaymentsInfo() {
+    try {
+      final result = db.getAll<PaymentInfoLocalModel>();
+
+      return ApiResultModel.success(
+        data: result!.map((e) => e.mapToEntity()).toList(),
+      );
     } catch (e, stackTrace) {
       return ApiResultModel.failure(
         message: ErrorResultModel(message: e.toString()),

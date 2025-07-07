@@ -11,7 +11,7 @@ class GetAllPaymentCategories
   GetAllPaymentCategories(this.repository);
   final CategoryRepository repository;
   @override
-  ApiResultModel<List<CategoryEntity>> call(NoParams) {
+  Future<ApiResultModel<List<CategoryEntity>>> call(NoParams) async {
     // TODO: implement call
     return repository.getAllPaymentCategories();
   }

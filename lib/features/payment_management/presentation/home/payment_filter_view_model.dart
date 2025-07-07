@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:injectable/injectable.dart';
 import 'package:notsy/core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import 'package:notsy/core/commondomain/usecase/base_param_usecase.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
@@ -11,7 +13,7 @@ import 'package:notsy/features/payment_management/domain/use_case/payment_usecas
 import '../../../../core/baseComponents/base_view_model.dart';
 import '../../domain/entities/payment_entities/category_entity.dart';
 
-@factory
+@injectable
 class HomePaymentFilterViewModel extends BaseViewModel {
   HomePaymentFilterViewModel({
     required this.filter,
@@ -21,7 +23,17 @@ class HomePaymentFilterViewModel extends BaseViewModel {
     selectedCategoryName.addListener(filterPaymentInfo);
     currentPage.addListener(filterPaymentInfo);
   }
+  List<PaymentInfoEntity> paymentList = <PaymentInfoEntity>[];
+  late final pagingController = PagingController<int, PaymentInfoEntity>(
+    getNextPageKey: (state) =>
+        state.lastPageIsEmpty ? null : state.nextIntPageKey,
+    fetchPage: (pageKey) {
+      currentPage.value = pageKey;
+      return paymentList;
+    },
+  );
 
+  //
   final TextEditingController searchController = TextEditingController();
   //
   ValueNotifier<int> currentPage = ValueNotifier<int>(0);
@@ -65,6 +77,15 @@ class HomePaymentFilterViewModel extends BaseViewModel {
     _payemnt_list_result.add(result!);
 
     notifyListeners();
+  }
+
+  Future<void> setCurrentPage(int page) async {
+    if (currentPage.value != page) {
+      currentPage.value = page;
+    } else {
+      // Force trigger
+      await filterPaymentInfo();
+    }
   }
 
   Future<void> getAllPaymentCategory() async {

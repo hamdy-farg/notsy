@@ -10,6 +10,7 @@ import 'package:notsy/features/payment_management/domain/entities/payment_entiti
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
 import 'package:notsy/features/payment_management/domain/use_case/category_usecase/add_new_category.dart';
 import 'package:notsy/features/payment_management/domain/use_case/category_usecase/get_all_category.dart';
+import 'package:notsy/features/payment_management/domain/use_case/payment_usecase/delete_payment.dart';
 import 'package:notsy/features/payment_management/domain/use_case/payment_usecase/get_payment.dart';
 import 'package:notsy/features/payment_management/domain/use_case/payment_usecase/update_payment.dart';
 
@@ -19,6 +20,7 @@ import '../../domain/use_case/payment_usecase/insert_payment.dart';
 class AddNewPaymentViewModel extends BaseViewModel {
   final UpdatePayment updatePayment;
   final AddNewPayment addNewPayment;
+  final DeletePayment deletePayment;
   final GetAllPaymentCategories getAllPaymentCategories;
   final AddNewCategory addNewCategory;
   final GetPayment getPaymentInfo;
@@ -29,8 +31,46 @@ class AddNewPaymentViewModel extends BaseViewModel {
     required this.addNewCategory,
     required this.getPaymentInfo,
     required this.getAllPaymentCategories,
+    required this.deletePayment,
   });
-  void addCategoryField() {
+
+  Future<ApiResultModel<bool>> deletePaymentInfo({required int id}) async {
+    final result = await executeParamsUseCase(
+      useCase: deletePayment,
+      query: id,
+    );
+    return result!;
+  }
+
+  void readyToUpdate({required PaymentInfoEntity paymentInfoEntity}) {
+    log("controller = ${paymentInfoEntity}");
+    nameController.text = paymentInfoEntity.name ?? "";
+    phoneNumberController.text = paymentInfoEntity.phone_number ?? "";
+    dateTime = paymentInfoEntity.date ?? DateTime.now();
+    paymentMethodEnum =
+        paymentInfoEntity.payment_method ?? PaymentMethodEnum.cash;
+    categoryEntityList.addAll(
+      paymentInfoEntity.category_list ?? <CategoryEntity>[],
+    );
+    for (final i in categoryEntityList) {
+      quantityControllerList.add(TextEditingController());
+      amountPaidControllerList.add(TextEditingController());
+    }
+    paymentMethodEnum =
+        paymentInfoEntity.payment_method ?? PaymentMethodEnum.cash;
+    for (int i = 0; i < categoryEntityList.length; i++) {
+      quantityControllerList[i].text = categoryEntityList[i].quantity
+          .toString();
+      amountPaidControllerList[i].text = categoryEntityList[i].amount_paid
+          .toString();
+    }
+    log("hiiiiiiii$categoryEntityList.}");
+
+    // notifyListeners();
+  }
+
+  Future<void> addCategoryField() async {
+    await getAllCategory();
     quantityControllerList.add(TextEditingController());
     amountPaidControllerList.add(TextEditingController());
     categoryEntityList.add(CategoryEntity());
@@ -83,7 +123,9 @@ class AddNewPaymentViewModel extends BaseViewModel {
       quantityControllerList.removeAt(index);
       amountPaidControllerList.removeAt(index);
       categoryEntityList.removeAt(index);
+
       log("len${categoryEntityList.length}");
+      getAllCategory();
       notifyListeners();
     }
   }
@@ -195,7 +237,7 @@ class AddNewPaymentViewModel extends BaseViewModel {
   //
 
   //
-  Future<ApiResultModel<int>> addPayment() async {
+  ApiResultModel? paymentInfoValidation() {
     if (nameController.text.isEmpty ||
         phoneNumberController.text.isEmpty ||
         dateTime.toString().isEmpty ||
@@ -228,6 +270,41 @@ class AddNewPaymentViewModel extends BaseViewModel {
         );
       }
     }
+    return null;
+  }
+
+  Future<ApiResultModel<bool>> updatePaymentInfo({required int id}) async {
+    final paymentInfoValidation_ = paymentInfoValidation();
+    if (paymentInfoValidation_ != null) {
+      return ApiResultModel.failure(
+        message: (paymentInfoValidation_ as Failure).message,
+      );
+    }
+
+    log("Category Entity List : $categoryEntityList");
+
+    final result = await executeParamsUseCase(
+      useCase: updatePayment,
+      query: PaymentInfoEntity(
+        id: id,
+        name: nameController.text,
+        phone_number: phoneNumberController.text,
+        payment_method: paymentMethodEnum,
+        date: dateTime,
+        category_list: categoryEntityList,
+      ),
+    );
+    return result!;
+  }
+
+  Future<ApiResultModel<int>> addPayment() async {
+    final paymentInfoValidation_ = paymentInfoValidation();
+    if (paymentInfoValidation_ != null) {
+      return ApiResultModel.failure(
+        message: (paymentInfoValidation_ as Failure).message,
+      );
+    }
+
     final result = await executeParamsUseCase(
       useCase: addNewPayment,
       query: PaymentInfoEntity(
@@ -250,6 +327,10 @@ class AddNewPaymentViewModel extends BaseViewModel {
     );
     if (result is Success<List<CategoryEntity>>) {
       fitchedCategoryList = result.data;
+      fitchedCategoryList.removeWhere(
+        (item) => categoryEntityList.contains(item),
+      );
+      log("fitched category ${fitchedCategoryList}  data${categoryEntityList}");
     }
     notifyListeners();
     return result!;

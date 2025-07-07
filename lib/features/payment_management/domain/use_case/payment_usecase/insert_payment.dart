@@ -10,7 +10,7 @@ class AddNewPayment extends BaseParamsUseCase<int, PaymentInfoEntity> {
   AddNewPayment(this.repository);
   final PaymentRepository repository;
   @override
-  ApiResultModel<int> call(PaymentInfoEntity payment) {
+  Future<ApiResultModel<int>> call(PaymentInfoEntity payment) async {
     // TODO: implement call
     return repository.addNewPayment(paymentInfoEntity: payment);
   }

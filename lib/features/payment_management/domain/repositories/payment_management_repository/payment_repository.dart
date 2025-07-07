@@ -15,6 +15,7 @@ abstract class PaymentRepository {
   });
 
   ApiResultModel<bool> deletePayment({required int id});
+  ApiResultModel<List<PaymentInfoEntity>> getAllPayment();
 
   ApiResultModel<int> addNewPayment({
     required PaymentInfoEntity paymentInfoEntity,

@@ -5,11 +5,14 @@ import 'package:notsy/features/payment_management/domain/entities/payment_entiti
 abstract class PaymentLocalDatasource {
   ApiResultModel<PaymentInfoEntity> getPaymentInfo({required int paymentId});
   ApiResultModel<List<CategoryEntity>> getAllPaymentCategory();
+  ApiResultModel<List<PaymentInfoEntity>> getAllPaymentsInfo();
 
   ApiResultModel<List<PaymentInfoEntity>> filterPaymentInfo({
     String? input,
     List<String>? categoryNames,
     int? page,
+    DateTime? to,
+    DateTime? from,
   });
 
   ApiResultModel<bool> updatePaymentInfo({

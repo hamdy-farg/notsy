@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 
-import '../../../features/payment_management/data/data_source/local_database/local_database.dart';
+import '../../common_data/data_source/local/local/local_database.dart';
 
 @module
 abstract class AppModule {

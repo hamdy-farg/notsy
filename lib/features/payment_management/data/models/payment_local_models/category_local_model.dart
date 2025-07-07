@@ -32,6 +32,18 @@ class CategoryLocalModel extends DataMapper<CategoryEntity> {
   final String? description;
 
   factory CategoryLocalModel.fromEntity(CategoryEntity entity) {
+    if ((entity.cost ?? 0) * (entity.quantity ?? 0) >
+        (entity.amount_paid ?? 0)) {
+      entity.category_status = CategoryStatus.underpaid;
+      entity.color_value = "C2410C"; // yellow color
+    } else if (entity.amount_paid != null && (entity.amount_paid ?? 0) == 0) {
+      entity.category_status = CategoryStatus.unpaid;
+      entity.color_value = "EF4444";
+    } else {
+      entity.category_status = CategoryStatus.paid;
+      entity.color_value = null;
+    }
+
     final model = CategoryLocalModel(
       name: entity.name,
       cost: entity.cost ?? 0,

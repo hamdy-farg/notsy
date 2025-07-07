@@ -11,19 +11,19 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:notsy/core/common_data/data_source/local/local/local_database.dart'
+    as _i684;
 import 'package:notsy/core/di/app_component/app_module.dart' as _i489;
 import 'package:notsy/core/utils/helper/extension_function/responsive_ui_helper/responsive_config.dart'
     as _i208;
-import 'package:notsy/features/payment_management/data/data_source/local_database/category_local_datasource/category_local_datasource.dart'
-    as _i324;
-import 'package:notsy/features/payment_management/data/data_source/local_database/category_local_datasource/category_local_datasource_impl.dart'
-    as _i317;
-import 'package:notsy/features/payment_management/data/data_source/local_database/local_database.dart'
-    as _i684;
 import 'package:notsy/features/payment_management/data/data_source/local_database/Payment_local_datasource/payment_local_datasource.dart'
     as _i653;
 import 'package:notsy/features/payment_management/data/data_source/local_database/Payment_local_datasource/payment_local_datasource_impl.dart'
     as _i167;
+import 'package:notsy/features/payment_management/data/data_source/local_database/category_local_datasource/category_local_datasource.dart'
+    as _i324;
+import 'package:notsy/features/payment_management/data/data_source/local_database/category_local_datasource/category_local_datasource_impl.dart'
+    as _i317;
 import 'package:notsy/features/payment_management/data/repositories/category_repository_impl.dart'
     as _i506;
 import 'package:notsy/features/payment_management/data/repositories/payment_management_repository_impl.dart'
@@ -52,7 +52,7 @@ import 'package:notsy/features/payment_management/domain/use_case/payment_usecas
     as _i522;
 import 'package:notsy/features/payment_management/domain/use_case/payment_usecase/update_payment.dart'
     as _i1061;
-import 'package:notsy/features/payment_management/presentation/home/add_new_payment_view_model.dart'
+import 'package:notsy/features/payment_management/presentation/add_new_payment/add_new_payment_view_model.dart'
     as _i960;
 import 'package:notsy/features/payment_management/presentation/home/payment_filter_view_model.dart'
     as _i637;
@@ -116,18 +116,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i9.AddNewCategory>(
       () => _i9.AddNewCategory(gh<_i289.CategoryRepository>()),
     );
-    gh.factory<_i637.HomePaymentFilterViewModel>(
-      () => _i637.HomePaymentFilterViewModel(
-        filter: gh<_i543.FilterPaymentInfo>(),
-        getAllPaymentCategories: gh<_i72.GetAllPaymentCategories>(),
-      ),
-    );
     gh.factory<_i960.AddNewPaymentViewModel>(
       () => _i960.AddNewPaymentViewModel(
         updatePayment: gh<_i1061.UpdatePayment>(),
         addNewPayment: gh<_i522.AddNewPayment>(),
         addNewCategory: gh<_i9.AddNewCategory>(),
         getPaymentInfo: gh<_i645.GetPayment>(),
+        getAllPaymentCategories: gh<_i72.GetAllPaymentCategories>(),
+        deletePayment: gh<_i710.DeletePayment>(),
+      ),
+    );
+    gh.factory<_i637.HomePaymentFilterViewModel>(
+      () => _i637.HomePaymentFilterViewModel(
+        filter: gh<_i543.FilterPaymentInfo>(),
         getAllPaymentCategories: gh<_i72.GetAllPaymentCategories>(),
       ),
     );

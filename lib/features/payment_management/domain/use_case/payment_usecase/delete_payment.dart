@@ -9,7 +9,7 @@ class DeletePayment extends BaseParamsUseCase<bool, int> {
   DeletePayment(this.repository);
   final PaymentRepository repository;
   @override
-  ApiResultModel<bool> call(id) {
+  Future<ApiResultModel<bool>> call(id) async {
     return repository.deletePayment(id: id);
   }
 }

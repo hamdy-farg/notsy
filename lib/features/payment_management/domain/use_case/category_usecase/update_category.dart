@@ -10,7 +10,7 @@ class UpdateCategory extends BaseParamsUseCase<bool, CategoryEntity> {
   UpdateCategory(this.repository);
   final CategoryRepository repository;
   @override
-  ApiResultModel<bool> call(categoyrEntity) {
+  Future<ApiResultModel<bool>> call(categoyrEntity) async {
     // TODO: implement call
     return repository.updateCategory(categoryEntity: categoyrEntity);
   }

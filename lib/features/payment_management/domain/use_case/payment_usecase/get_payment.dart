@@ -10,7 +10,7 @@ class GetPayment extends BaseParamsUseCase<PaymentInfoEntity, int> {
   GetPayment(this.repository);
   final PaymentRepository repository;
   @override
-  ApiResultModel<PaymentInfoEntity> call(payment) {
+  Future<ApiResultModel<PaymentInfoEntity>> call(payment) async {
     // TODO: implement call
     return repository.getPayment(id: payment);
   }

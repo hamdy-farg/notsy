@@ -53,7 +53,7 @@ class CustomTextFormField extends StatelessWidget {
           TextFormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             onChanged: onChange,
-            maxLines: maxLines,
+            maxLines: maxLines ?? 1,
             readOnly: readOnly ?? false,
             keyboardType: keyboardType,
             onFieldSubmitted: onFieldSubmitted,

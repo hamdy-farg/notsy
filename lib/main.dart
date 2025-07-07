@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:notsy/core/common_data/data_source/local/local/local_database.dart';
 import 'package:notsy/core/di/app_component/app_component.dart';
-import 'package:notsy/features/payment_management/data/data_source/local_database/local_database.dart';
-import 'package:notsy/features/payment_management/presentation/home/payment_filter_view_model.dart';
-import 'package:notsy/features/payment_management/presentation/home/view/home_filter_view.dart';
-import 'package:provider/provider.dart';
+
+import 'core/common_presentation/bottom_navigation/view/main_navigation_screen.dart';
 
 late AppLocalDatabase db;
 
@@ -44,13 +43,13 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white, // ← global app bar color
+        ),
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: ChangeNotifierProvider<HomePaymentFilterViewModel>(
-        create: (BuildContext context) => locator<HomePaymentFilterViewModel>(),
-        child: HomeFilterView(),
-      ),
+      home: MainNavigationScreen(),
     );
   }
 }

@@ -12,9 +12,9 @@ class FilterPaymentInfo
   FilterPaymentInfo(this.repository);
   final PaymentRepository repository;
   @override
-  ApiResultModel<List<PaymentInfoEntity>> call(
+  Future<ApiResultModel<List<PaymentInfoEntity>>> call(
     FilterPaymentParamsEntity filters,
-  ) {
+  ) async {
     return repository.filterPaymentInfo(filters: filters);
   }
 }
@@ -23,6 +23,14 @@ class FilterPaymentParamsEntity {
   final String? input;
   final List<String>? categoryList;
   final int? page;
+  final DateTime? to;
+  final DateTime? from;
 
-  FilterPaymentParamsEntity({this.input, this.categoryList, this.page});
+  FilterPaymentParamsEntity({
+    this.input,
+    this.categoryList,
+    this.page,
+    this.to,
+    this.from,
+  });
 }
