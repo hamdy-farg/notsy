@@ -6,12 +6,15 @@ import 'package:notsy/features/payment_management/domain/entities/payment_entiti
 import '../../repositories/payment_management_repository/payment_repository.dart';
 
 @injectable
-class AddNewPayment extends BaseParamsUseCase<int, PaymentInfoEntity> {
+class AddNewPayment
+    extends BaseParamsUseCase<List<int>, List<PaymentInfoEntity>> {
   AddNewPayment(this.repository);
   final PaymentRepository repository;
   @override
-  Future<ApiResultModel<int>> call(PaymentInfoEntity payment) async {
+  Future<ApiResultModel<List<int>>> call(
+    List<PaymentInfoEntity> payments,
+  ) async {
     // TODO: implement call
-    return repository.addNewPayment(paymentInfoEntity: payment);
+    return repository.addNewPayment(payments: payments);
   }
 }

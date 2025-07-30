@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:notsy/core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
+import 'package:notsy/features/payment_management/domain/entities/person_entity/dart/person_Entity.dart';
 import 'package:notsy/features/payment_management/domain/repositories/payment_management_repository/payment_repository.dart';
 
 import '../../domain/use_case/payment_usecase/filter_payment_info.dart';
@@ -12,15 +13,15 @@ class PaymentRepositoryImpl implements PaymentRepository {
   PaymentRepositoryImpl({required this.localDataSource});
 
   @override
-  ApiResultModel<bool> deletePayment({required int id}) {
-    return localDataSource.deletePaymentInfo(paymentId: id);
+  ApiResultModel<bool> deletePerson({required int id}) {
+    return localDataSource.deletePerson(personId: id);
   }
 
   @override
-  ApiResultModel<List<PaymentInfoEntity>> filterPaymentInfo({
+  ApiResultModel<List<PersonEntity>> filterPersonPayments({
     required FilterPaymentParamsEntity filters,
   }) {
-    return localDataSource.filterPaymentInfo(
+    return localDataSource.filterPersonPayments(
       input: filters.input,
       categoryNames: filters.categoryList,
       page: filters.page,
@@ -35,26 +36,20 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  ApiResultModel<bool> updatePayment({
-    required PaymentInfoEntity paymentInfoEntity,
-  }) {
-    return localDataSource.updatePaymentInfo(
-      paymentInfoEntity: paymentInfoEntity,
-    );
+  ApiResultModel<bool> updatePersonData({required PersonEntity person}) {
+    return localDataSource.updatePersonData(person: person);
   }
 
   @override
-  ApiResultModel<int> addNewPayment({
-    required PaymentInfoEntity paymentInfoEntity,
+  ApiResultModel<List<int>> addNewPayment({
+    required List<PaymentInfoEntity> payments,
   }) {
-    return localDataSource.savePaymentInfo(
-      paymentInfoEntity: paymentInfoEntity,
-    );
+    return localDataSource.addPersonAndPayments(payments: payments);
   }
 
   @override
   ApiResultModel<List<PaymentInfoEntity>> getAllPayment() {
-    return localDataSource.getAllPaymentsInfo();
+    return localDataSource.getAllPayments();
   }
 }
 

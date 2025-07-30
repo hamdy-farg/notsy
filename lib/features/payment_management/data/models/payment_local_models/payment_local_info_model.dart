@@ -1,4 +1,6 @@
 import 'package:notsy/core/commondomain/utils/mapper/data_mapper.dart';
+import 'package:notsy/features/payment_management/data/models/payment_local_models/person_local_model.dart';
+import 'package:notsy/features/payment_management/domain/entities/payment_entities/category_entity.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
 import 'package:objectbox/objectbox.dart';
 
@@ -9,46 +11,70 @@ import 'category_local_model.dart';
 class PaymentInfoLocalModel extends DataMapper<PaymentInfoEntity> {
   @Id()
   int id = 0;
-  String? name;
-  String? phone_number;
+  // String? name;
+  // String? phoneNumber;
   DateTime? date;
-  ToMany<CategoryLocalModel> category_list = ToMany<CategoryLocalModel>();
-  String? payment_method;
+  String? paymentMethod;
+  String? colorValue;
+  String? paymentStatus;
+  double? amountPaid;
+  double? quantity;
   String? description;
+  final category = ToOne<CategoryLocalModel>();
+  final person = ToOne<PersonLocalModel>();
+
   PaymentInfoLocalModel({
-    this.name,
-    this.phone_number,
+    this.paymentMethod,
+    this.amountPaid,
+    this.colorValue,
+    this.paymentStatus,
+    this.quantity,
     this.date,
-    this.payment_method,
     this.description,
   });
-  factory PaymentInfoLocalModel.fromEntity(PaymentInfoEntity entity) {
-    final model = PaymentInfoLocalModel(
-      name: entity.name,
-      phone_number: entity.phone_number,
-      date: entity.date ?? DateTime.now(),
-      payment_method: entity.payment_method?.name ?? "cash",
-      description: entity.description,
-    );
-    model.id = entity.id ?? 0;
-
-    if (entity.category_list != null) {
-      model.category_list.addAll(
-        entity.category_list!.map((e) => CategoryLocalModel.fromEntity(e)),
-      );
+  factory PaymentInfoLocalModel.fromEntity(
+    PaymentInfoEntity entity,
+    PersonLocalModel personModel,
+    CategoryLocalModel categoryModel,
+  ) {
+    if (entity.amountPaid == 0) {
+      entity.paymentStatusEnum = PaymentStatusEnum.unpaid;
+      entity.colorValue = "EF4444"; // red color
+    } else if ((entity.amountPaid ?? 0) <
+        ((entity.category?.cost ?? 0) * (entity.quantity ?? 0))) {
+      entity.paymentStatusEnum = PaymentStatusEnum.unpaid;
+      entity.colorValue = "C2410C"; // yellow color
     }
-    return model;
+
+    return PaymentInfoLocalModel()
+      ..id = entity.id ?? 0
+      ..date = entity.date ?? DateTime.now()
+      ..paymentMethod = entity.paymentMethodEnum?.name ?? "cash"
+      ..amountPaid = entity.amountPaid
+      ..quantity = entity.quantity
+      ..description = entity.description
+      ..paymentStatus = entity.paymentStatusEnum?.name ?? "paid"
+      ..colorValue = entity.colorValue
+      ..person.target = personModel
+      ..category.target = categoryModel;
   }
   @override
-  PaymentInfoEntity mapToEntity() {
+  PaymentInfoEntity mapToEntity({bool includePerson = false}) {
+    // log("category.target?.mapToEntity()");
     return PaymentInfoEntity(
       id: id,
-      name: name,
-      phone_number: phone_number,
       date: date,
-      category_list: category_list.map((e) => e.mapToEntity()).toList(),
-      payment_method: PaymentMethodEnum.values.fromString(payment_method ?? ""),
+      amountPaid: amountPaid,
+      quantity: quantity,
       description: description,
+      category: category.target?.mapToEntity(),
+      paymentStatusEnum: PaymentStatusEnum.values.fromString(
+        paymentStatus ?? "cash",
+      ),
+      colorValue: colorValue,
+      paymentMethodEnum: PaymentMethodEnum.values.fromString(
+        paymentMethod ?? "",
+      ),
     );
   }
 }

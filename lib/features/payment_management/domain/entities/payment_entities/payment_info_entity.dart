@@ -1,33 +1,45 @@
 import 'package:equatable/equatable.dart';
+import 'package:notsy/features/payment_management/domain/entities/person_entity/dart/person_Entity.dart';
 
 import 'category_entity.dart';
 
 class PaymentInfoEntity extends Equatable {
   PaymentInfoEntity({
     this.id,
-    this.name,
-    this.phone_number,
     this.date,
-    this.category_list,
-    this.payment_method,
+    this.category,
+    this.paymentMethodEnum,
+    this.amountPaid,
+    this.quantity,
+    this.colorValue,
+    this.paymentStatusEnum,
     this.description,
+    this.person,
   });
+
   final int? id;
-  String? name;
-  String? phone_number;
+  PaymentMethodEnum? paymentMethodEnum;
   DateTime? date;
-  List<CategoryEntity>? category_list;
-  PaymentMethodEnum? payment_method;
+  CategoryEntity? category;
+  double? quantity;
+  double? amountPaid;
+  String? colorValue;
+  PaymentStatusEnum? paymentStatusEnum;
+
   String? description;
+  PersonEntity? person;
   @override
   // TODO: implement props
   List<Object?> get props => <Object?>[
     id,
-    name,
-    phone_number,
+
     date,
-    category_list,
-    payment_method,
+    category,
+    paymentMethodEnum,
+    quantity,
+    amountPaid,
+    person,
+    category,
   ];
 }
 

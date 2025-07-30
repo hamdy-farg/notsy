@@ -4,6 +4,7 @@ import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/core/utils/validators/dart/input_validators.dart';
 
 import '../../../../../core/utils/global_widgets/custom_textFormField_widget.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../add_new_payment/add_new_payment_view_model.dart';
 import 'category_payment_section_widget.dart';
 
@@ -29,7 +30,7 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
     final itemsNameList = provider.fitchedCategoryList
         .map((e) => e.name ?? "")
         .toList();
-
+    final t = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(top: 10),
       child: Container(
@@ -54,13 +55,13 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                       : null,
                   closedBorder: Border.all(
                     width: 1,
-                    color: provider.categoryEntityList[index].name != ""
+                    color: provider.paymentEntities[index].category?.name != ""
                         ? Color(0xffD1D5DB)
                         : Colors.red,
                   ),
                 ),
                 hintText: isEdited
-                    ? provider.categoryEntityList[index].name
+                    ? provider.paymentEntities[index].category?.name
                     : dropDownHint,
                 items: itemsNameList,
 
@@ -68,37 +69,34 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                   final category = provider.fitchedCategoryList.firstWhere(
                     (element) => element.name == value,
                   );
-                  final cost = category.cost;
-                  final description = category.description;
-                  final original_color_value = category.original_color_value;
-
-                  provider.setNewCategoryEntity(
+                  provider.setNewPaymentEntity(
                     index: index,
-                    name: value,
-                    cost: cost,
-                    description: description,
-                    original_color_value: original_color_value,
+                    category: category,
                   );
                 },
               ),
             ),
-            provider.categoryEntityList[index].name != ""
+            provider.paymentEntities[index].category?.name != ""
                 ? SizedBox()
                 : Text(
-                    "you have to choose category",
+                    "${t?.chooseCategoryValidation}",
                     style: TextStyle(color: Colors.red),
                   ),
 
-            provider.categoryEntityList[index].name != null
+            provider.paymentEntities[index].category?.name != null
                 ? Row(
                     children: [
                       Expanded(
                         flex: 3,
                         child: CustomTextFormField(
                           controller: provider.amountPaidControllerList[index],
-                          label: "Amount Paid",
-                          hintText: "Enter Amount Paid",
-                          validator: InputValidators.validateAmountPaid,
+                          label: "${t?.amountPaid}",
+                          hintText: "${t?.enterAmountPaid}",
+                          validator: (value) =>
+                              InputValidators.validateAmountPaid(
+                                context,
+                                value,
+                              ),
                           onFieldSubmitted: (value) {
                             formKey.currentState!.validate();
                           },
@@ -121,13 +119,13 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                             provider.setQuantity(index, value);
                           },
                           controller: provider.quantityControllerList[index],
-                          label: "Quantity",
-                          hintText: "Enter Quantity",
+                          label: "${t?.quantity}",
+                          hintText: "${t?.enterQuantity}",
                           onFieldSubmitted: (value) {
                             formKey.currentState!.validate();
                           },
-                          validator:
-                              InputValidators.validateQuantitvalidateNumbery,
+                          validator: (value) =>
+                              InputValidators.validateQuantity(context, value),
                           hintStyle: TextStyle(
                             fontSize: 12.w,
                             fontWeight: FontWeight.w400,
@@ -139,16 +137,16 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                     ],
                   )
                 : SizedBox(),
-            provider.categoryEntityList[index].name != null
+            provider.paymentEntities[index].category?.name != null
                 ? CategoryPaymentSection(provider: provider, index: index)
                 : SizedBox(),
 
             SizedBox(height: 10.h),
-            provider.categoryEntityList.length > 1
+            provider.paymentEntities.length > 1
                 ? GestureDetector(
-                    // PaymentSummaryInfoRow(provider: provider, index: index, label: "remaining", isHaveValue: provider.categoryEntityList[index].quantity != null &&
-                    //     provider.categoryEntityList[index].cost != null &&
-                    //     provider.categoryEntityList[index].amount_paid != null)
+                    // PaymentSummaryInfoRow(provider: provider, index: index, label: "remaining", isHaveValue: provider.paymentEntities[index].category?.quantity != null &&
+                    //     provider.paymentEntities[index].category?.cost != null &&
+                    //     provider.paymentEntities[index].category?.amount_paid != null)
                     onTap: onRemove,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -159,7 +157,7 @@ class CustomCategoryDataWidgetSection extends StatelessWidget {
                           size: 16.w,
                         ),
                         Text(
-                          " Remove",
+                          "${t?.remove}",
                           style: TextStyle(
                             color: Color(0xffEF4444),
                             fontWeight: FontWeight.w500,

@@ -37,6 +37,4 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }) {
     return localDataSource.updateCategory(categoryEntity: categoryEntity);
   }
-
-
 }

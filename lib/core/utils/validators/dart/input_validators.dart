@@ -1,70 +1,83 @@
+import 'package:flutter/widgets.dart';
+
+import '../../../../l10n/app_localizations.dart';
+
 class InputValidators {
-  static String? validateNotEmpty(String? value, {String fieldName = 'Field'}) {
+  const InputValidators._(); // prevent instantiation
+
+  static String? validateNotEmpty(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return AppLocalizations.of(context)?.fieldRequired;
     }
     return null;
   }
 
   static String? validateNumber(
+    BuildContext context,
     String? value, {
-    String fieldName = 'Field',
     bool allowZero = false,
   }) {
+    final t = AppLocalizations.of(context);
+
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return t?.fieldRequired;
     }
 
     final number = num.tryParse(value);
     if (number == null) {
-      return '$fieldName must be a valid number';
+      return t?.fieldMustBeNumber;
     }
 
     if (!allowZero && number <= 0) {
-      return '$fieldName must be greater than 0';
+      return t?.fieldGreaterThanZero;
     }
 
     if (allowZero && number < 0) {
-      return '$fieldName cannot be negative';
+      return t?.fieldCannotBeNegative;
     }
 
     return null;
   }
 
-  static String? validateEgyptianPhoneNumber(String? value) {
+  static String? validateEgyptianPhoneNumber(
+    BuildContext context,
+    String? value,
+  ) {
+    final t = AppLocalizations.of(context);
+
     if (value == null || value.trim().isEmpty) {
-      return 'Phone number is required';
+      return t?.phoneRequired;
     }
 
     final regex = RegExp(r'^01[0125][0-9]{8}$');
     if (!regex.hasMatch(value)) {
-      return 'Enter a valid Egyptian phone number';
+      return t?.invalidEgyptianPhone;
     }
 
     return null;
   }
 
-  static String? validateQuantitvalidateNumbery(String? value) {
-    return validateNumber(value, fieldName: 'Quantity');
+  static String? validateQuantity(BuildContext context, String? value) {
+    return validateNumber(context, value);
   }
 
-  static String? validateAmountPaid(String? value) {
-    return validateNumber(value, fieldName: 'Amount paid', allowZero: true);
+  static String? validateAmountPaid(BuildContext context, String? value) {
+    return validateNumber(context, value, allowZero: true);
   }
 
-  static String? validateCategoryName(String? value) {
-    return validateNotEmpty(value, fieldName: 'Category name');
+  static String? validateCategoryName(BuildContext context, String? value) {
+    return validateNotEmpty(context, value);
   }
 
-  static String? validatePersonName(String? value) {
-    return validateNotEmpty(value, fieldName: 'Category name');
+  static String? validatePersonName(BuildContext context, String? value) {
+    return validateNotEmpty(context, value);
   }
 
-  static String? validateDescription(String? value) {
-    return validateNotEmpty(value, fieldName: 'Description');
+  static String? validateDescription(BuildContext context, String? value) {
+    return validateNotEmpty(context, value);
   }
 
-  static String? validateDefaultCost(String? value) {
-    return validateNumber(value, fieldName: 'Default cost', allowZero: true);
+  static String? validateDefaultCost(BuildContext context, String? value) {
+    return validateNumber(context, value, allowZero: true);
   }
 }

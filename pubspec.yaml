@@ -56,9 +56,13 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   cherry_toast: ^1.13.0
   pull_to_refresh: ^2.0.0
+  flutter_svg: ^2.2.0
   excel: ^2.1.0
-  permission_handler: ^11.0.1
   open_filex: ^4.3.2
+  permission_handler: ^11.0.0
+  device_info_plus: ^9.0.3
+  another_flushbar: ^1.12.30
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +80,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -83,8 +88,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - ./assets/json_images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -98,10 +103,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Bold.ttf
+
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

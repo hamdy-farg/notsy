@@ -5,11 +5,11 @@ import 'package:notsy/core/commondomain/usecase/base_param_usecase.dart';
 import '../../repositories/payment_management_repository/payment_repository.dart';
 
 @injectable
-class DeletePayment extends BaseParamsUseCase<bool, int> {
-  DeletePayment(this.repository);
+class DeletePerson extends BaseParamsUseCase<bool, int> {
+  DeletePerson(this.repository);
   final PaymentRepository repository;
   @override
   Future<ApiResultModel<bool>> call(id) async {
-    return repository.deletePayment(id: id);
+    return repository.deletePerson(id: id);
   }
 }

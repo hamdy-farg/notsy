@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:notsy/core/common_data/data_source/local/local/local_database.dart';
+import 'package:notsy/core/common_presentation/bottom_navigation/view/main_navigation_screen.dart';
+import 'package:notsy/core/common_presentation/bottom_navigation/view/main_navigation_view_model.dart';
 import 'package:notsy/core/di/app_component/app_component.dart';
+import 'package:provider/provider.dart';
 
-import 'core/common_presentation/bottom_navigation/view/main_navigation_screen.dart';
+import 'l10n/app_localizations.dart'; // generated
 
 late AppLocalDatabase db;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures binding before async code
   await initAppComponentsLocator();
+  await initializeDateFormatting('ar');
+
   // db = await AppLocalDatabase.create();
   runApp(const MyApp());
 }
@@ -27,6 +33,7 @@ class MyApp extends StatelessWidget {
         Locale('en'), // English
       ],
       localizationsDelegates: [
+        AppLocalizations.delegate, // generated
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -42,14 +49,18 @@ class MyApp extends StatelessWidget {
       },
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff34D399)),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white, // ← global app bar color
         ),
         scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MainNavigationScreen(),
+      home: ChangeNotifierProvider(
+        create: (_) => locator<MainNavigationViewModel>(),
+        child: const MainNavigationScreen(),
+      ),
     );
   }
 }

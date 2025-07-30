@@ -3,15 +3,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notsy/core/baseComponents/base_view_model_view.dart';
-import 'package:notsy/core/di/app_component/app_component.dart';
+import 'package:notsy/core/common_presentation/bottom_navigation/wigets/custom_snackBarWidget.dart';
 import 'package:notsy/core/utils/helper/extension_function/color_extension.dart';
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/core/utils/validators/dart/input_validators.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
+import 'package:notsy/features/payment_management/domain/entities/person_entity/dart/person_Entity.dart';
 import 'package:notsy/features/payment_management/presentation/add_new_payment/add_new_payment_view_model.dart';
-import 'package:notsy/features/payment_management/presentation/home/payment_filter_view_model.dart';
+import 'package:notsy/l10n/app_localizations.dart';
 
 import '../../../../../core/baseComponents/base_responsive_widget.dart';
+import '../../../../../core/common_presentation/bottom_navigation/wigets/show_delete_confirmation_dialog.dart';
 import '../../../../../core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import '../../../../../core/utils/custom_method/date_time_picker_mothod.dart';
 import '../../../../../core/utils/global_widgets/custom_textFormField_widget.dart';
@@ -24,10 +26,10 @@ class AddNewPaymentView extends StatefulWidget {
   const AddNewPaymentView({
     super.key,
     required this.isEdited,
-    this.paymentInfoEntity,
+    this.personEntity,
   });
   final bool isEdited;
-  final PaymentInfoEntity? paymentInfoEntity;
+  final PersonEntity? personEntity;
 
   @override
   State<AddNewPaymentView> createState() => _AddNewPaymentViewState();
@@ -61,25 +63,15 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
     if (result is Success<List<CategoryEntity>>) {
       _provider?.fitchedCategoryList = result.data;
     } else if (result is Failure) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('snack'),
-          duration: const Duration(seconds: 1),
-          action: SnackBarAction(
-            label: '${(result as Failure).message.message}',
-
-            onPressed: () {},
-          ),
-        ),
-      );
+      showAppSnack(context, "there is error please try again");
     }
   }
 
   void CheckIsEdited() {
-    log("hi1");
-    if (widget.isEdited && widget.paymentInfoEntity != null) {
-      log("hi2");
-      _provider?.readyToUpdate(paymentInfoEntity: widget.paymentInfoEntity!);
+    // log("hi1");
+    if (widget.isEdited && widget.personEntity != null) {
+      // log("hi2");
+      _provider?.readyToUpdate(personEntity: widget.personEntity!);
     }
   }
 
@@ -87,6 +79,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
   bool _isManuallyPopping = false;
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return PopScope(
       canPop: false, // allow default pop behavior
       onPopInvokedWithResult: (didPop, result) {
@@ -114,7 +107,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
             ),
             centerTitle: true,
             title: Text(
-              "New Payment",
+              "${t?.newPayment}",
               style: TextStyle(
                 color: Color(0xff2E7D32),
                 fontWeight: FontWeight.w600,
@@ -122,28 +115,24 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
               ),
             ),
             actions: [
-              widget.isEdited && widget.paymentInfoEntity != null
+              widget.isEdited && widget.personEntity != null
                   ? GestureDetector(
                       onTap: () {
                         showDeleteConfirmationDialog(
                           context: context,
                           onConfirm: () async {
                             final result = await _provider?.deletePaymentInfo(
-                              id: widget.paymentInfoEntity?.id ?? 0,
+                              id: widget.personEntity?.id ?? 0,
                             );
                             if (result is Success<bool>) {
                               Navigator.pop(context, "refresh");
                             } else if (result is Failure) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text('snack'),
-                                  duration: const Duration(seconds: 1),
-                                  action: SnackBarAction(
-                                    label:
-                                        '${(result as Failure).message.message}',
-                                    onPressed: () {},
-                                  ),
-                                ),
+                              showAppSnack(
+                                context,
+                                "there is error please try again",
+                                isError: true,
+                                fromTop: true,
+                                icon: Icons.error,
                               );
                             }
 
@@ -162,7 +151,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          "DELETE",
+                          "${t?.delete}",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.w,
@@ -180,7 +169,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                 _provider = provider;
                 CheckIsEdited();
                 if (!widget.isEdited) {
-                  _provider!.addCategoryField();
+                  _provider!.addPaymentField();
                 }
                 _fetchAllCategory();
               },
@@ -200,20 +189,27 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                           //
                           CustomTextFormField(
                             controller: _provider!.nameController,
-                            label: "Person Name",
-                            hintText: "Enter Person Name",
-                            validator: InputValidators.validatePersonName,
+                            label: "${t?.personName}",
+                            hintText: "${t?.enterPersonName}",
+                            validator: (value) =>
+                                InputValidators.validatePersonName(
+                                  context,
+                                  value,
+                                ),
                             onFieldSubmitted: (value) {
                               _GlobalFormKey.currentState!.validate();
                             },
                           ),
                           CustomTextFormField(
                             controller: _provider!.phoneNumberController,
-                            label: "Person Number",
-                            hintText: "Enter Person Number",
+                            label: "${t?.personNumber}",
+                            hintText: "${t?.enterPersonNumber}",
                             keyboardType: TextInputType.phone,
-                            validator:
-                                InputValidators.validateEgyptianPhoneNumber,
+                            validator: (value) =>
+                                InputValidators.validateEgyptianPhoneNumber(
+                                  context,
+                                  value,
+                                ),
                             onFieldSubmitted: (value) {
                               _GlobalFormKey.currentState!.validate();
                             },
@@ -236,16 +232,18 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                             suffixIconOnPressed: () async {
                               final result = await dateTimepicker(
                                 context: context,
+                                isHaveTime: false,
+                                istoField: false,
                               );
                               _provider?.setDateTime(result);
-                              log("1111111${provider.dateTime}");
+                              // log("1111111${provider.dateTime}");
                             },
                           ),
 
                           Padding(
                             padding: EdgeInsets.only(top: 15),
                             child: Text(
-                              "Category Payment",
+                              "${t?.categoryPayment}",
                               style: TextStyle(
                                 color: Color(0xff1F2937),
                                 fontSize: 18.w,
@@ -255,7 +253,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                           ),
                           for (
                             int index = 0;
-                            index < _provider!.categoryEntityList.length;
+                            index < _provider!.paymentEntities.length;
                             index++
                           )
                             CustomCategoryDataWidgetSection(
@@ -263,16 +261,16 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                               formKey: _GlobalFormKey,
                               provider: provider,
                               index: index,
-                              dropDownHint: "Select Category",
+                              dropDownHint: "${t?.selectCategory}",
                               onRemove: () {
-                                _provider?.removeCategoryField(index: index);
+                                _provider?.removePaymentField(index: index);
                               },
                             ),
 
                           //
                           GestureDetector(
                             onTap: () {
-                              _provider?.addCategoryField();
+                              _provider?.addPaymentField();
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 16.h),
@@ -298,7 +296,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                     size: 25,
                                   ),
                                   Text(
-                                    " Add Another Category",
+                                    " ${t?.addAnotherCategory}",
                                     style: TextStyle(
                                       color: Color(0xff2E7D32),
                                       fontWeight: FontWeight.w500,
@@ -335,7 +333,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                     ),
                                     SizedBox(width: 2.w),
                                     Text(
-                                      "Payment Summary",
+                                      "${t?.paymentSummary}",
                                       style: TextStyle(
                                         fontSize: 18.w,
                                         color: Color(0xff2E7D32),
@@ -354,7 +352,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                   margin: EdgeInsets.only(top: 5, bottom: 8),
                                   child: PaymentSummaryInfoRow(
                                     provider: provider,
-                                    label: "Total Amount Paid",
+                                    label: "${t?.totalAmountPaid}",
                                     isHaveValue: true,
                                     valueColor: Colors.white,
                                     value:
@@ -379,7 +377,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                   margin: EdgeInsets.only(bottom: 10),
                                   child: PaymentSummaryInfoRow(
                                     provider: provider,
-                                    label: "Total Cost:",
+                                    label: "${t?.totalCost}:",
                                     isHaveValue: true,
                                     valueColor: Colors.white,
                                     value:
@@ -403,7 +401,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                     margin: EdgeInsets.only(bottom: 10),
                                     child: PaymentSummaryInfoRow(
                                       provider: provider,
-                                      label: "Total remaining:",
+                                      label: "${t?.totalRemaining}:",
                                       isHaveValue: true,
                                       valueColor: Colors.white,
                                       value:
@@ -460,7 +458,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    " Add New Category",
+                                    " ${t?.addNewCategory}",
                                     style: TextStyle(
                                       color: Color(0xff2E7D32),
                                       fontWeight: FontWeight.w500,
@@ -503,32 +501,39 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         CustomTextFormField(
-                                          label: "Category Name",
-                                          hintText: "Enter New Category Name",
-                                          validator: InputValidators
-                                              .validateCategoryName,
+                                          label: "${t?.categoryName}",
+                                          hintText:
+                                              "${t?.enterNewCategoryName}",
+                                          validator: (value) =>
+                                              InputValidators.validateCategoryName(
+                                                context,
+                                                value,
+                                              ),
                                           onFieldSubmitted: (value) {
                                             _newCategoryFormKey.currentState!
                                                 .validate();
                                           },
                                           onChange: (value) {
-                                            locator<
-                                                  HomePaymentFilterViewModel
-                                                >()
-                                                .getAllPaymentCategory();
-                                            _provider?.setNewCategoryName(
-                                              value,
-                                            );
+                                            // locator<
+                                            //       HomePaymentFilterViewModel
+                                            //     >()
+                                            //     .getAllPaymentCategory();
+                                            // _provider?.setNewCategoryName(
+                                            //   value,
+                                            // );
                                           },
                                           controller: _provider
                                               ?.newCategoryNameController,
                                         ),
                                         CustomTextFormField(
                                           maxLines: 3,
-                                          label: "Description (optional)",
-                                          hintText: "Enter Description",
-                                          validator: InputValidators
-                                              .validateDescription,
+                                          label: "${t?.description}",
+                                          hintText: "${t?.enterDefaultCost}",
+                                          validator: (value) =>
+                                              InputValidators.validateDescription(
+                                                context,
+                                                value,
+                                              ),
                                           onChange: (value) {
                                             _provider
                                                 ?.setNewCategoryDescription(
@@ -543,12 +548,15 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                               ?.newCategoryDescriptionController,
                                         ),
                                         CustomTextFormField(
-                                          label: "Default Cost",
-                                          hintText: "Enter default Cost",
+                                          label: "${t?.defaultCost}",
+                                          hintText: "${t?.enterDefaultCost}",
                                           controller: _provider
                                               ?.newCategoryCostController,
-                                          validator: InputValidators
-                                              .validateDefaultCost,
+                                          validator: (value) =>
+                                              InputValidators.validateDefaultCost(
+                                                context,
+                                                value,
+                                              ),
 
                                           onFieldSubmitted: (value) {
                                             _newCategoryFormKey.currentState!
@@ -565,7 +573,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                           child: Container(
                                             padding: EdgeInsets.only(top: 10.h),
                                             child: Text(
-                                              "Category Color",
+                                              "${t?.categoryColor}",
                                               style: TextStyle(
                                                 color: Color(0xff4B5563),
                                                 fontSize: 14.w,
@@ -697,7 +705,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                                 ),
                                               ),
                                               Text(
-                                                "   Preview:  ",
+                                                "   ${t?.preview}:  ",
                                                 style: TextStyle(
                                                   color: Color(0xff4B5563),
                                                   fontWeight: FontWeight.w400,
@@ -733,7 +741,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                                         ? _provider!
                                                               .newCategoryNameController
                                                               .text
-                                                        : "category Name",
+                                                        : "${t?.categoryName}",
                                                     style: TextStyle(
                                                       fontSize: 12.w,
                                                       fontWeight:
@@ -760,7 +768,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                         ),
                                         colorIsSelected == false
                                             ? Text(
-                                                "you have to choose category color",
+                                                "${t?.chooseCategoryValidation}",
                                                 style: TextStyle(
                                                   color: Colors.red,
                                                   fontWeight: FontWeight.w400,
@@ -788,49 +796,24 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                                                   ?.addNewCategory_();
 
                                               if (result is Success<int>) {
-                                                log("success");
+                                                // log("success");
                                                 _provider
                                                     ?.removeNewCategoryField();
                                                 _fetchAllCategory();
-
-                                                ScaffoldMessenger.of(
+                                                showAppSnack(
                                                   context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: const Text(
-                                                      'snack',
-                                                    ),
-                                                    duration: const Duration(
-                                                      seconds: 1,
-                                                    ),
-                                                    action: SnackBarAction(
-                                                      label: 'success',
-                                                      onPressed: () {
-                                                        // Some code to undo the change.
-                                                      },
-                                                    ),
-                                                  ),
+                                                  "your category Successfully created",
+                                                  fromTop: true,
                                                 );
                                               } else if (result is Failure) {
-                                                log("success2");
+                                                // log("success2");
 
-                                                ScaffoldMessenger.of(
+                                                showAppSnack(
                                                   context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      '${(result as Failure).message}',
-                                                    ),
-                                                    duration: const Duration(
-                                                      seconds: 1,
-                                                    ),
-                                                    action: SnackBarAction(
-                                                      label: 'fail',
-                                                      onPressed: () {
-                                                        // Some code to undo the change.
-                                                      },
-                                                    ),
-                                                  ),
+                                                  "there is error please try again",
+                                                  fromTop: true,
+                                                  isError: true,
+                                                  icon: Icons.error,
                                                 );
                                               }
                                             }
@@ -868,7 +851,7 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Text(
-                              "Payment Method",
+                              "${t?.paymentMethod}",
                               style: TextStyle(
                                 color: Color(0xff1F2937),
                                 fontSize: 18.w,
@@ -975,67 +958,59 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
 
                           GestureDetector(
                             onTap: () async {
-                              if (_provider!.categoryEntityList.length >= 1) {
+                              if (_provider!.paymentEntities.length >= 1) {
                                 for (
                                   int index = 0;
-                                  index < _provider!.categoryEntityList.length;
+                                  index < _provider!.paymentEntities.length;
                                   index++
                                 ) {
                                   log(
-                                    "${_provider?.categoryEntityList[index].name}",
+                                    "${_provider?.paymentEntities[index].category?.name}",
                                   );
                                   if (_provider
-                                          ?.categoryEntityList[index]
-                                          .name ==
+                                          ?.paymentEntities[index]
+                                          .category
+                                          ?.name ==
                                       null) {
-                                    _GlobalFormKey.currentState!.validate();
-                                    _provider?.setCategoryName(
+                                    // _GlobalFormKey.currentState!.validate();
+                                    _provider?.setPaymentName(
                                       index: index,
                                       name: "",
                                     );
                                   }
                                 }
                               }
+
                               if (_GlobalFormKey.currentState!.validate()) {
                                 final result =
                                     widget.isEdited == true &&
-                                        widget.paymentInfoEntity != null
-                                    ? await _provider?.updatePaymentInfo(
-                                        id: widget.paymentInfoEntity?.id ?? 0,
+                                        widget.personEntity != null
+                                    ? await _provider?.updatePersonData(
+                                        person:
+                                            widget.personEntity ??
+                                            PersonEntity(),
                                       )
                                     : await _provider?.addPayment();
 
-                                if (result is Success<int> ||
+                                if (result is Success<List<int>> ||
                                     result is Success<bool>) {
                                   _isManuallyPopping = true;
                                   Navigator.pop(context, "refresh");
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text('snack'),
-                                      duration: const Duration(seconds: 1),
-                                      action: SnackBarAction(
-                                        label: 'success',
-                                        onPressed: () {
-                                          // Some code to undo the change.
-                                        },
-                                      ),
-                                    ),
+                                  showAppSnack(
+                                    context,
+                                    widget.isEdited == true &&
+                                            widget.personEntity != null
+                                        ? "Payment Successfully updated"
+                                        : "Payment Successfully created",
+                                    fromTop: true,
                                   );
                                 } else if (result is Failure) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${(result as Failure).message}',
-                                      ),
-                                      duration: const Duration(seconds: 1),
-
-                                      action: SnackBarAction(
-                                        label: 'fail',
-                                        onPressed: () {
-                                          // Some code to undo the change.
-                                        },
-                                      ),
-                                    ),
+                                  showAppSnack(
+                                    context,
+                                    "there is error please try again",
+                                    fromTop: true,
+                                    isError: true,
+                                    icon: Icons.error,
                                   );
                                 }
                               }
@@ -1052,9 +1027,9 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
                               child: Center(
                                 child: Text(
                                   widget.isEdited == true &&
-                                          widget.paymentInfoEntity != null
-                                      ? "Update Payment"
-                                      : "Submit Payment",
+                                          widget.personEntity != null
+                                      ? "${t?.updatePayment}"
+                                      : "${t?.submitPayment}",
 
                                   style: TextStyle(
                                     color: Colors.white,
@@ -1077,80 +1052,4 @@ class _AddNewPaymentViewState extends State<AddNewPaymentView> {
       ),
     );
   }
-}
-
-void showDeleteConfirmationDialog({
-  required BuildContext context,
-  required VoidCallback onConfirm,
-}) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.warning, size: 48, color: Colors.redAccent),
-              const SizedBox(height: 16),
-              Text(
-                "Are you sure?",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "This action will permanently delete the item.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: Colors.grey[800]),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close dialog first
-                        onConfirm(); // Then perform delete
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        "Delete",
-                        style: TextStyle(color: Colors.white, fontSize: 12.w),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
 }

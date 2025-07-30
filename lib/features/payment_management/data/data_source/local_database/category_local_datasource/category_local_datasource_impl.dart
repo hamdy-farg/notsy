@@ -28,15 +28,24 @@ class CategoryDataSourceImpl implements CategoryLocalDatasource {
   @override
   ApiResultModel<List<CategoryEntity>> getAllCategory() {
     try {
-      final result = db
-          .getAll<CategoryLocalModel>()
-          ?.map((e) => e.mapToEntity())
-          .toSet();
+      // Fetch all local models from the database
+      final result = db.getAll<CategoryLocalModel>();
+      // log("Raw result from DB: $result");
+      // log("Raw result from DBlen: ${result?.length}");
 
-      ApiResultModel<List<CategoryEntity>> _result = ApiResultModel.success(
-        data: result!.toList(),
-      );
-      return _result;
+      // Use a map to ensure uniqueness based on a unique field like 'name'
+      final uniqueMap = <String, CategoryLocalModel>{};
+      for (final e in result ?? []) {
+        uniqueMap[e.name] = e; // or use e.id if it's the unique field
+      }
+
+      // Convert only the unique values to entities
+      final uniqueEntities = uniqueMap.values
+          .map((e) => e.mapToEntity())
+          .toList();
+
+      // Return success
+      return ApiResultModel.success(data: uniqueEntities);
     } catch (e, stackTrace) {
       return ApiResultModel.failure(
         message: ErrorResultModel(message: e.toString()),
@@ -62,7 +71,7 @@ class CategoryDataSourceImpl implements CategoryLocalDatasource {
       if (categoryEntity.name != null ||
           categoryEntity.description != null ||
           categoryEntity.cost != null ||
-          categoryEntity.original_color_value != null) {
+          categoryEntity.originalColorValue != null) {
         final result = db.insert<CategoryLocalModel>(
           CategoryLocalModel.fromEntity(categoryEntity),
         );
@@ -85,24 +94,10 @@ class CategoryDataSourceImpl implements CategoryLocalDatasource {
       if (categoryEntity.name == null ||
           categoryEntity.description == null ||
           categoryEntity.cost == null ||
-          categoryEntity.original_color_value != null ||
-          categoryEntity.quantity == null ||
-          categoryEntity.amount_paid == null ||
+          categoryEntity.originalColorValue != null ||
           categoryEntity.id == null) {
         throw Exception("you Enter un completed data");
       }
-      if (categoryEntity.amount_paid == categoryEntity.cost) {
-        categoryEntity.category_status = CategoryStatus.paid;
-        categoryEntity.color_value = null;
-      } else if (categoryEntity.amount_paid! < categoryEntity.cost! &&
-          categoryEntity.amount_paid! > 0) {
-        categoryEntity.category_status = CategoryStatus.underpaid;
-        categoryEntity.color_value = "C2410C"; // yellow color
-      } else if (categoryEntity.amount_paid! == 0) {
-        categoryEntity.category_status = CategoryStatus.unpaid;
-        categoryEntity.color_value = "EF4444";
-      }
-
       final result = db.update<CategoryLocalModel>(
         CategoryLocalModel.fromEntity(categoryEntity),
       );

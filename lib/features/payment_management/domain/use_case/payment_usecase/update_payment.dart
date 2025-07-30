@@ -2,16 +2,16 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../../core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import '../../../../../core/commondomain/usecase/base_param_usecase.dart';
-import '../../entities/payment_entities/payment_info_entity.dart';
+import '../../entities/person_entity/dart/person_Entity.dart';
 import '../../repositories/payment_management_repository/payment_repository.dart';
 
 @injectable
-class UpdatePayment extends BaseParamsUseCase<bool, PaymentInfoEntity> {
-  UpdatePayment(this.repository);
+class UpdatePersonData extends BaseParamsUseCase<bool, PersonEntity> {
+  UpdatePersonData(this.repository);
   final PaymentRepository repository;
   @override
-  Future<ApiResultModel<bool>> call(payment) async {
+  Future<ApiResultModel<bool>> call(person) async {
     // TODO: implement call
-    return repository.updatePayment(paymentInfoEntity: payment);
+    return repository.updatePersonData(person: person);
   }
 }

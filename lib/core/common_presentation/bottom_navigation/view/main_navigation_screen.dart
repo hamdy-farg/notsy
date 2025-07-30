@@ -1,10 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
+import 'package:notsy/features/payment_management/presentation/home/payment_filter_view_model.dart';
 import 'package:notsy/features/payment_management/presentation/home/view/home_filter_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../features/payment_management/presentation/home/payment_filter_view_model.dart';
+import '../../../../features/payment_management/presentation/payment_report/payment_report_viewModel.dart';
+import '../../../../features/payment_management/presentation/payment_report/view/payment_report_view.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../di/app_component/app_component.dart';
+import 'main_navigation_view_model.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({Key? key}) : super(key: key);
@@ -14,85 +19,81 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 0;
-
-  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-  ];
-
   Future<bool> _onWillPop() async {
-    final isFirstRouteInCurrentTab = !await _navigatorKeys[_currentIndex]
-        .currentState!
-        .maybePop();
-    return isFirstRouteInCurrentTab;
+    // If we ever use navigation inside a tab, add logic here
+    return true; // allow back press
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: [
-            _buildNavigator(
-              0,
-              ChangeNotifierProvider<HomePaymentFilterViewModel>(
-                create: (BuildContext context) =>
-                    locator<HomePaymentFilterViewModel>(),
-                child: HomeFilterView(),
+      child: Consumer<MainNavigationViewModel>(
+        builder: (context, MainNavigationViewModel provider, child) {
+          log("provider.currentIndex = ${provider.currentIndex}");
+          return Scaffold(
+            body: _getCurrentScreen(provider),
+            bottomNavigationBar: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    offset: Offset(0, -1),
+                    blurRadius: 8,
+                    spreadRadius: .1,
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                backgroundColor: Colors.white,
+                selectedItemColor: Colors.green,
+                currentIndex: provider.currentIndex,
+                onTap: (index) {
+                  provider.currentIndex = index;
+                },
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    label: '${t?.home}',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.insert_chart_outlined_outlined),
+                    label: '${t?.reports}',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.settings_outlined),
+                    label: '${t?.settings}',
+                  ),
+                ],
               ),
             ),
-            _buildNavigator(1, SizedBox()),
-            _buildNavigator(2, SizedBox()),
-          ],
-        ),
-        bottomNavigationBar: Container(
-          height: 60.h,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0, -1), // top shadow (negative Y offset)
-                blurRadius: 8,
-                spreadRadius: .1,
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            backgroundColor: Colors.white,
-            selectedItemColor: Colors.green,
-            currentIndex: _currentIndex,
-            onTap: (index) => setState(() => _currentIndex = index),
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.insert_chart_outlined_outlined),
-                label: 'Reports',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined),
-                label: 'Settings',
-              ),
-            ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildNavigator(int index, Widget screen) {
-    return Navigator(
-      key: _navigatorKeys[index],
-      onGenerateRoute: (settings) {
-        return MaterialPageRoute(builder: (_) => screen);
-      },
-    );
+  /// Creates a new widget every time tab is switched
+  Widget _getCurrentScreen(MainNavigationViewModel provider) {
+    switch (provider.currentIndex) {
+      case 0:
+        return ChangeNotifierProvider<HomePaymentFilterViewModel>(
+          create: (_) => locator<HomePaymentFilterViewModel>(),
+          lazy: true,
+          child: HomeFilterView(),
+        );
+      case 1:
+        return ChangeNotifierProvider<PaymentReportViewModel>(
+          create: (_) => locator<PaymentReportViewModel>(),
+          lazy: true,
+          child: PaymentReportView(),
+        );
+      case 2:
+        return const Center(child: Text("Settings Page")); // Or your own widget
+      default:
+        return const SizedBox();
+    }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:notsy/core/commondomain/utils/extenstion/payment_method_enum_extension.dart';
 import 'package:notsy/features/payment_management/data/models/payment_local_models/payment_local_info_model.dart';
 import 'package:objectbox/objectbox.dart';
 
@@ -10,64 +9,47 @@ class CategoryLocalModel extends DataMapper<CategoryEntity> {
   CategoryLocalModel({
     this.name,
     this.cost,
-    this.category_status,
-    this.amount_paid,
-    this.quantity,
     this.description,
-    this.color_value,
-    this.original_color_value,
+    this.originalColorValue,
   });
   @Id()
   int id = 0;
   final String? name;
-  final String? original_color_value;
-  final String? color_value;
-  @Backlink("category_list")
-  final ToMany<PaymentInfoLocalModel> paymentInfo =
-      ToMany<PaymentInfoLocalModel>();
-  final double? quantity;
+  final String? originalColorValue;
   final double? cost;
-  final String? category_status;
-  final double? amount_paid;
   final String? description;
 
-  factory CategoryLocalModel.fromEntity(CategoryEntity entity) {
-    if ((entity.cost ?? 0) * (entity.quantity ?? 0) >
-        (entity.amount_paid ?? 0)) {
-      entity.category_status = CategoryStatus.underpaid;
-      entity.color_value = "C2410C"; // yellow color
-    } else if (entity.amount_paid != null && (entity.amount_paid ?? 0) == 0) {
-      entity.category_status = CategoryStatus.unpaid;
-      entity.color_value = "EF4444";
-    } else {
-      entity.category_status = CategoryStatus.paid;
-      entity.color_value = null;
-    }
+  @Backlink()
+  final ToMany<PaymentInfoLocalModel> payments =
+      ToMany<PaymentInfoLocalModel>();
 
-    final model = CategoryLocalModel(
+  factory CategoryLocalModel.fromEntity(CategoryEntity entity) {
+    // if ((entity.cost ?? 0) * (entity.quantity ?? 0) >
+    //     (entity.amount_paid ?? 0)) {
+    //   entity.category_status = CategoryStatus.underpaid;
+    //   entity.color_value = "C2410C"; // yellow color
+    // } else if (entity.amount_paid != null && (entity.amount_paid ?? 0) == 0) {
+    //   entity.category_status = CategoryStatus.unpaid;
+    //   entity.color_value = "EF4444";
+    // } else {
+    //   entity.category_status = CategoryStatus.paid;
+    //   entity.color_value = null;
+    // }
+
+    return CategoryLocalModel(
       name: entity.name,
       cost: entity.cost ?? 0,
-      category_status: entity.category_status?.name ?? "paid",
-      amount_paid: entity.amount_paid ?? 0,
-      quantity: entity.quantity ?? 1,
       description: entity.description,
-      color_value: entity.color_value,
-      original_color_value: entity.original_color_value,
-    );
-
-    model.id = entity.id ?? 0;
-    return model;
+      originalColorValue: entity.originalColorValue,
+    )..id = entity.id ?? 0;
   }
   @override
   CategoryEntity mapToEntity() {
     return CategoryEntity(
-      original_color_value: original_color_value,
-      color_value: color_value,
+      id: id,
+      originalColorValue: originalColorValue,
       name: name,
-      quantity: quantity,
       cost: cost,
-      category_status: CategoryStatus.values.fromString(category_status ?? ""),
-      amount_paid: amount_paid,
       description: description,
     );
   }

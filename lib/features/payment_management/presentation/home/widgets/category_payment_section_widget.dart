@@ -3,6 +3,7 @@ import 'package:notsy/core/utils/helper/extension_function/color_extension.dart'
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 import 'package:notsy/features/payment_management/presentation/home/widgets/payment_summary_infor_row.dart';
 
+import '../../../../../l10n/app_localizations.dart';
 import '../../add_new_payment/add_new_payment_view_model.dart';
 
 class CategoryPaymentSection extends StatelessWidget {
@@ -16,6 +17,7 @@ class CategoryPaymentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       margin: EdgeInsets.only(top: 16.h),
       padding: EdgeInsets.all(14.w),
@@ -26,13 +28,14 @@ class CategoryPaymentSection extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           PaymentSummaryInfoRow(
             provider: provider,
-            label: "Cost Per Item",
+            label: "${t?.costPerItem} :",
             isHaveValue: true,
             valueColor: Colors.white,
-            value: "${provider.categoryEntityList[index].cost ?? 0}",
+            value: "${provider.paymentEntities[index].category?.cost ?? 0}",
             valueTextStyle: TextStyle(
               color: Color(0xff2E7D32),
               fontSize: 16.w,
@@ -45,28 +48,28 @@ class CategoryPaymentSection extends StatelessWidget {
             valueColor: Color(0xff2E7D32),
 
             value:
-                "${(provider.categoryEntityList[index].cost ?? 0) * (provider.categoryEntityList[index].quantity ?? 0)}",
-            label: "Total Cost:",
+                "${(provider.paymentEntities[index].category?.cost ?? 0) * (provider.paymentEntities[index].quantity ?? 0)}",
+            label: "${t?.totalCost} :",
             isHaveValue:
-                (provider.categoryEntityList[index].quantity != null &&
-                provider.categoryEntityList[index].cost != null),
+                (provider.paymentEntities[index].quantity != null &&
+                provider.paymentEntities[index].category?.cost != null),
           ),
           PaymentSummaryInfoRow(
             provider: provider,
             valueColor: Colors.transparent
                 .chooseCorrectColorBasedOnTotalCostAndPaid(
                   totalCost:
-                      provider.categoryEntityList[index].cost ??
-                      0 * (provider.categoryEntityList[index].quantity ?? 0),
-                  totalPaid: provider.categoryEntityList[index].amount_paid,
+                      provider.paymentEntities[index].category?.cost ??
+                      0 * (provider.paymentEntities[index].quantity ?? 0),
+                  totalPaid: provider.paymentEntities[index].amountPaid,
                 ),
             value:
-                "${((provider.categoryEntityList[index].cost ?? 0) * (provider.categoryEntityList[index].quantity ?? 0)) - (provider.categoryEntityList[index].amount_paid ?? 0)}",
-            label: "remaining",
+                "${(provider.paymentEntities[index].category?.cost ?? 0) * (provider.paymentEntities[index].quantity ?? 0) - (provider.paymentEntities[index].amountPaid ?? 0)}",
+            label: "${t?.remaining} :",
             isHaveValue:
-                provider.categoryEntityList[index].quantity != null &&
-                provider.categoryEntityList[index].cost != null &&
-                provider.categoryEntityList[index].amount_paid != null,
+                provider.paymentEntities[index].quantity != null &&
+                provider.paymentEntities[index].category?.cost != null &&
+                provider.paymentEntities[index].amountPaid != null,
           ),
         ],
       ),

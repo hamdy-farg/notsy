@@ -15,8 +15,9 @@ class SaveExcelFile extends BaseParamsUseCase<File, ExportToExcelEntity> {
   @override
   Future<ApiResultModel<File>> call(ExportToExcelEntity params) async {
     return await excelManagementRepository.saveExcelFile(
-      excel: params.excelFile,
-      baseFileName: params.baseFileName,
+      personList: params.personList,
+      selectedCategoryName: params.selectedCategoryName,
+      fileName: params.fileName,
     );
   }
 }

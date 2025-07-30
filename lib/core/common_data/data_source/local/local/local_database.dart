@@ -13,6 +13,11 @@ class AppLocalDatabase {
     return AppLocalDatabase();
   }
 
+  Future<void> deleteDatabase() async {
+    final dir = _store?.directoryPath;
+    await Directory(dir!).delete(recursive: true);
+  }
+
   Box<T>? getBox<T>() {
     return _store?.box<T>();
   }

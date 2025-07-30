@@ -16,6 +16,7 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'features/payment_management/data/models/payment_local_models/category_local_model.dart';
 import 'features/payment_management/data/models/payment_local_models/payment_local_info_model.dart';
+import 'features/payment_management/data/models/payment_local_models/person_local_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -23,7 +24,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 6420331599651958668),
     name: 'CategoryLocalModel',
-    lastPropertyId: const obx_int.IdUid(9, 3480966842126916344),
+    lastPropertyId: const obx_int.IdUid(10, 8047184986126990777),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -39,26 +40,8 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 4904786589903045449),
-        name: 'color_value',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 2171641816419615243),
-        name: 'quantity',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(5, 3779686883364740820),
         name: 'cost',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 7649954701181082518),
-        name: 'amount_paid',
         type: 8,
         flags: 0,
       ),
@@ -69,14 +52,8 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(8, 8002286578458877461),
-        name: 'category_status',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(9, 3480966842126916344),
-        name: 'original_color_value',
+        id: const obx_int.IdUid(10, 8047184986126990777),
+        name: 'originalColorValue',
         type: 9,
         flags: 0,
       ),
@@ -84,16 +61,16 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[
       obx_int.ModelBacklink(
-        name: 'paymentInfo',
+        name: 'payments',
         srcEntity: 'PaymentInfoLocalModel',
-        srcField: 'category_list',
+        srcField: '',
       ),
     ],
   ),
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 4401135258923804491),
     name: 'PaymentInfoLocalModel',
-    lastPropertyId: const obx_int.IdUid(7, 7406303197173765578),
+    lastPropertyId: const obx_int.IdUid(14, 561571178383847306),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -101,18 +78,6 @@ final _entities = <obx_int.ModelEntity>[
         name: 'id',
         type: 6,
         flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 6280263842091853691),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 4576909031677871237),
-        name: 'phone_number',
-        type: 9,
-        flags: 0,
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(4, 5262847613753833115),
@@ -127,20 +92,94 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 3094619609554494469),
-        name: 'payment_method',
+        id: const obx_int.IdUid(8, 6969957882130757003),
+        name: 'paymentMethod',
         type: 9,
         flags: 0,
       ),
-    ],
-    relations: <obx_int.ModelRelation>[
-      obx_int.ModelRelation(
-        id: const obx_int.IdUid(2, 1034562958712804097),
-        name: 'category_list',
-        targetId: const obx_int.IdUid(1, 6420331599651958668),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 3451276106949479052),
+        name: 'colorValue',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 5782381024188522524),
+        name: 'paymentStatus',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 9166463856410089179),
+        name: 'amountPaid',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 6250028849790838016),
+        name: 'quantity',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 8567404068171779626),
+        name: 'categoryId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(1, 6291433111087711359),
+        relationTarget: 'CategoryLocalModel',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 561571178383847306),
+        name: 'personId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(2, 7798925566780937235),
+        relationTarget: 'PersonLocalModel',
       ),
     ],
+    relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(3, 9099206626091174092),
+    name: 'PersonLocalModel',
+    lastPropertyId: const obx_int.IdUid(4, 4329073757361443825),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 3687521591040980755),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2396441027020439167),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 699422220847866024),
+        name: 'phoneNumber',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 4329073757361443825),
+        name: 'latestUpdateAt',
+        type: 10,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'payments',
+        srcEntity: 'PaymentInfoLocalModel',
+        srcField: '',
+      ),
+    ],
   ),
 ];
 
@@ -182,14 +221,24 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(2, 4401135258923804491),
-    lastIndexId: const obx_int.IdUid(0, 0),
+    lastEntityId: const obx_int.IdUid(3, 9099206626091174092),
+    lastIndexId: const obx_int.IdUid(2, 7798925566780937235),
     lastRelationId: const obx_int.IdUid(2, 1034562958712804097),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [7406303197173765578],
-    retiredRelationUids: const [7121663207257609299],
+    retiredPropertyUids: const [
+      7406303197173765578,
+      4904786589903045449,
+      2171641816419615243,
+      7649954701181082518,
+      8002286578458877461,
+      3480966842126916344,
+      6280263842091853691,
+      4576909031677871237,
+      3094619609554494469,
+    ],
+    retiredRelationUids: const [7121663207257609299, 1034562958712804097],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
     version: 1,
@@ -200,8 +249,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
       model: _entities[0],
       toOneRelations: (CategoryLocalModel object) => [],
       toManyRelations: (CategoryLocalModel object) => {
-        obx_int.RelInfo<PaymentInfoLocalModel>.toManyBacklink(2, object.id):
-            object.paymentInfo,
+        obx_int.RelInfo<PaymentInfoLocalModel>.toOneBacklink(
+          13,
+          object.id,
+          (PaymentInfoLocalModel srcObject) => srcObject.category,
+        ): object.payments,
       },
       getId: (CategoryLocalModel object) => object.id,
       setId: (CategoryLocalModel object, int id) {
@@ -211,28 +263,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final nameOffset = object.name == null
             ? null
             : fbb.writeString(object.name!);
-        final color_valueOffset = object.color_value == null
-            ? null
-            : fbb.writeString(object.color_value!);
         final descriptionOffset = object.description == null
             ? null
             : fbb.writeString(object.description!);
-        final category_statusOffset = object.category_status == null
+        final originalColorValueOffset = object.originalColorValue == null
             ? null
-            : fbb.writeString(object.category_status!);
-        final original_color_valueOffset = object.original_color_value == null
-            ? null
-            : fbb.writeString(object.original_color_value!);
-        fbb.startTable(10);
+            : fbb.writeString(object.originalColorValue!);
+        fbb.startTable(11);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
-        fbb.addOffset(2, color_valueOffset);
-        fbb.addFloat64(3, object.quantity);
         fbb.addFloat64(4, object.cost);
-        fbb.addFloat64(5, object.amount_paid);
         fbb.addOffset(6, descriptionOffset);
-        fbb.addOffset(7, category_statusOffset);
-        fbb.addOffset(8, original_color_valueOffset);
+        fbb.addOffset(9, originalColorValueOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -247,77 +289,65 @@ obx_int.ModelDefinition getObjectBoxModel() {
           rootOffset,
           12,
         );
-        final category_statusParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 18);
-        final amount_paidParam = const fb.Float64Reader().vTableGetNullable(
-          buffer,
-          rootOffset,
-          14,
-        );
-        final quantityParam = const fb.Float64Reader().vTableGetNullable(
-          buffer,
-          rootOffset,
-          10,
-        );
         final descriptionParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 16);
-        final color_valueParam = const fb.StringReader(
+        final originalColorValueParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 8);
-        final original_color_valueParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 20);
+        ).vTableGetNullable(buffer, rootOffset, 22);
         final object = CategoryLocalModel(
           name: nameParam,
           cost: costParam,
-          category_status: category_statusParam,
-          amount_paid: amount_paidParam,
-          quantity: quantityParam,
           description: descriptionParam,
-          color_value: color_valueParam,
-          original_color_value: original_color_valueParam,
+          originalColorValue: originalColorValueParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
         obx_int.InternalToManyAccess.setRelInfo<CategoryLocalModel>(
-          object.paymentInfo,
+          object.payments,
           store,
-          obx_int.RelInfo<PaymentInfoLocalModel>.toManyBacklink(2, object.id),
+          obx_int.RelInfo<PaymentInfoLocalModel>.toOneBacklink(
+            13,
+            object.id,
+            (PaymentInfoLocalModel srcObject) => srcObject.category,
+          ),
         );
         return object;
       },
     ),
     PaymentInfoLocalModel: obx_int.EntityDefinition<PaymentInfoLocalModel>(
       model: _entities[1],
-      toOneRelations: (PaymentInfoLocalModel object) => [],
-      toManyRelations: (PaymentInfoLocalModel object) => {
-        obx_int.RelInfo<PaymentInfoLocalModel>.toMany(2, object.id):
-            object.category_list,
-      },
+      toOneRelations: (PaymentInfoLocalModel object) => [
+        object.category,
+        object.person,
+      ],
+      toManyRelations: (PaymentInfoLocalModel object) => {},
       getId: (PaymentInfoLocalModel object) => object.id,
       setId: (PaymentInfoLocalModel object, int id) {
         object.id = id;
       },
       objectToFB: (PaymentInfoLocalModel object, fb.Builder fbb) {
-        final nameOffset = object.name == null
-            ? null
-            : fbb.writeString(object.name!);
-        final phone_numberOffset = object.phone_number == null
-            ? null
-            : fbb.writeString(object.phone_number!);
         final descriptionOffset = object.description == null
             ? null
             : fbb.writeString(object.description!);
-        final payment_methodOffset = object.payment_method == null
+        final paymentMethodOffset = object.paymentMethod == null
             ? null
-            : fbb.writeString(object.payment_method!);
-        fbb.startTable(8);
+            : fbb.writeString(object.paymentMethod!);
+        final colorValueOffset = object.colorValue == null
+            ? null
+            : fbb.writeString(object.colorValue!);
+        final paymentStatusOffset = object.paymentStatus == null
+            ? null
+            : fbb.writeString(object.paymentStatus!);
+        fbb.startTable(15);
         fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.addOffset(2, phone_numberOffset);
         fbb.addInt64(3, object.date?.millisecondsSinceEpoch);
         fbb.addOffset(4, descriptionOffset);
-        fbb.addOffset(5, payment_methodOffset);
+        fbb.addOffset(7, paymentMethodOffset);
+        fbb.addOffset(8, colorValueOffset);
+        fbb.addOffset(9, paymentStatusOffset);
+        fbb.addFloat64(10, object.amountPaid);
+        fbb.addFloat64(11, object.quantity);
+        fbb.addInt64(12, object.category.targetId);
+        fbb.addInt64(13, object.person.targetId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -329,32 +359,114 @@ obx_int.ModelDefinition getObjectBoxModel() {
           rootOffset,
           10,
         );
-        final nameParam = const fb.StringReader(
+        final paymentMethodParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 6);
-        final phone_numberParam = const fb.StringReader(
+        ).vTableGetNullable(buffer, rootOffset, 18);
+        final amountPaidParam = const fb.Float64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          24,
+        );
+        final colorValueParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 8);
+        ).vTableGetNullable(buffer, rootOffset, 20);
+        final paymentStatusParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 22);
+        final quantityParam = const fb.Float64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          26,
+        );
         final dateParam = dateValue == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(dateValue);
-        final payment_methodParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 14);
         final descriptionParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 12);
         final object = PaymentInfoLocalModel(
-          name: nameParam,
-          phone_number: phone_numberParam,
+          paymentMethod: paymentMethodParam,
+          amountPaid: amountPaidParam,
+          colorValue: colorValueParam,
+          paymentStatus: paymentStatusParam,
+          quantity: quantityParam,
           date: dateParam,
-          payment_method: payment_methodParam,
           description: descriptionParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-        obx_int.InternalToManyAccess.setRelInfo<PaymentInfoLocalModel>(
-          object.category_list,
+        object.category.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          28,
+          0,
+        );
+        object.category.attach(store);
+        object.person.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          30,
+          0,
+        );
+        object.person.attach(store);
+        return object;
+      },
+    ),
+    PersonLocalModel: obx_int.EntityDefinition<PersonLocalModel>(
+      model: _entities[2],
+      toOneRelations: (PersonLocalModel object) => [],
+      toManyRelations: (PersonLocalModel object) => {
+        obx_int.RelInfo<PaymentInfoLocalModel>.toOneBacklink(
+          14,
+          object.id,
+          (PaymentInfoLocalModel srcObject) => srcObject.person,
+        ): object.payments,
+      },
+      getId: (PersonLocalModel object) => object.id,
+      setId: (PersonLocalModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (PersonLocalModel object, fb.Builder fbb) {
+        final nameOffset = object.name == null
+            ? null
+            : fbb.writeString(object.name!);
+        final phoneNumberOffset = object.phoneNumber == null
+            ? null
+            : fbb.writeString(object.phoneNumber!);
+        fbb.startTable(5);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addOffset(2, phoneNumberOffset);
+        fbb.addInt64(3, object.latestUpdateAt?.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final latestUpdateAtValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          10,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 6);
+        final phoneNumberParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 8);
+        final object =
+            PersonLocalModel(name: nameParam, phoneNumber: phoneNumberParam)
+              ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+              ..latestUpdateAt = latestUpdateAtValue == null
+                  ? null
+                  : DateTime.fromMillisecondsSinceEpoch(latestUpdateAtValue);
+        obx_int.InternalToManyAccess.setRelInfo<PersonLocalModel>(
+          object.payments,
           store,
-          obx_int.RelInfo<PaymentInfoLocalModel>.toMany(2, object.id),
+          obx_int.RelInfo<PaymentInfoLocalModel>.toOneBacklink(
+            14,
+            object.id,
+            (PaymentInfoLocalModel srcObject) => srcObject.person,
+          ),
         );
         return object;
       },
@@ -376,39 +488,26 @@ class CategoryLocalModel_ {
     _entities[0].properties[1],
   );
 
-  /// See [CategoryLocalModel.color_value].
-  static final color_value = obx.QueryStringProperty<CategoryLocalModel>(
-    _entities[0].properties[2],
-  );
-
-  /// See [CategoryLocalModel.quantity].
-  static final quantity = obx.QueryDoubleProperty<CategoryLocalModel>(
-    _entities[0].properties[3],
-  );
-
   /// See [CategoryLocalModel.cost].
   static final cost = obx.QueryDoubleProperty<CategoryLocalModel>(
-    _entities[0].properties[4],
-  );
-
-  /// See [CategoryLocalModel.amount_paid].
-  static final amount_paid = obx.QueryDoubleProperty<CategoryLocalModel>(
-    _entities[0].properties[5],
+    _entities[0].properties[2],
   );
 
   /// See [CategoryLocalModel.description].
   static final description = obx.QueryStringProperty<CategoryLocalModel>(
-    _entities[0].properties[6],
+    _entities[0].properties[3],
   );
 
-  /// See [CategoryLocalModel.category_status].
-  static final category_status = obx.QueryStringProperty<CategoryLocalModel>(
-    _entities[0].properties[7],
+  /// See [CategoryLocalModel.originalColorValue].
+  static final originalColorValue = obx.QueryStringProperty<CategoryLocalModel>(
+    _entities[0].properties[4],
   );
 
-  /// See [CategoryLocalModel.original_color_value].
-  static final original_color_value =
-      obx.QueryStringProperty<CategoryLocalModel>(_entities[0].properties[8]);
+  /// see [CategoryLocalModel.payments]
+  static final payments =
+      obx.QueryBacklinkToMany<PaymentInfoLocalModel, CategoryLocalModel>(
+        PaymentInfoLocalModel_.category,
+      );
 }
 
 /// [PaymentInfoLocalModel] entity fields to define ObjectBox queries.
@@ -418,34 +517,79 @@ class PaymentInfoLocalModel_ {
     _entities[1].properties[0],
   );
 
-  /// See [PaymentInfoLocalModel.name].
-  static final name = obx.QueryStringProperty<PaymentInfoLocalModel>(
-    _entities[1].properties[1],
-  );
-
-  /// See [PaymentInfoLocalModel.phone_number].
-  static final phone_number = obx.QueryStringProperty<PaymentInfoLocalModel>(
-    _entities[1].properties[2],
-  );
-
   /// See [PaymentInfoLocalModel.date].
   static final date = obx.QueryDateProperty<PaymentInfoLocalModel>(
-    _entities[1].properties[3],
+    _entities[1].properties[1],
   );
 
   /// See [PaymentInfoLocalModel.description].
   static final description = obx.QueryStringProperty<PaymentInfoLocalModel>(
+    _entities[1].properties[2],
+  );
+
+  /// See [PaymentInfoLocalModel.paymentMethod].
+  static final paymentMethod = obx.QueryStringProperty<PaymentInfoLocalModel>(
+    _entities[1].properties[3],
+  );
+
+  /// See [PaymentInfoLocalModel.colorValue].
+  static final colorValue = obx.QueryStringProperty<PaymentInfoLocalModel>(
     _entities[1].properties[4],
   );
 
-  /// See [PaymentInfoLocalModel.payment_method].
-  static final payment_method = obx.QueryStringProperty<PaymentInfoLocalModel>(
+  /// See [PaymentInfoLocalModel.paymentStatus].
+  static final paymentStatus = obx.QueryStringProperty<PaymentInfoLocalModel>(
     _entities[1].properties[5],
   );
 
-  /// see [PaymentInfoLocalModel.category_list]
-  static final category_list =
-      obx.QueryRelationToMany<PaymentInfoLocalModel, CategoryLocalModel>(
-        _entities[1].relations[0],
+  /// See [PaymentInfoLocalModel.amountPaid].
+  static final amountPaid = obx.QueryDoubleProperty<PaymentInfoLocalModel>(
+    _entities[1].properties[6],
+  );
+
+  /// See [PaymentInfoLocalModel.quantity].
+  static final quantity = obx.QueryDoubleProperty<PaymentInfoLocalModel>(
+    _entities[1].properties[7],
+  );
+
+  /// See [PaymentInfoLocalModel.category].
+  static final category =
+      obx.QueryRelationToOne<PaymentInfoLocalModel, CategoryLocalModel>(
+        _entities[1].properties[8],
+      );
+
+  /// See [PaymentInfoLocalModel.person].
+  static final person =
+      obx.QueryRelationToOne<PaymentInfoLocalModel, PersonLocalModel>(
+        _entities[1].properties[9],
+      );
+}
+
+/// [PersonLocalModel] entity fields to define ObjectBox queries.
+class PersonLocalModel_ {
+  /// See [PersonLocalModel.id].
+  static final id = obx.QueryIntegerProperty<PersonLocalModel>(
+    _entities[2].properties[0],
+  );
+
+  /// See [PersonLocalModel.name].
+  static final name = obx.QueryStringProperty<PersonLocalModel>(
+    _entities[2].properties[1],
+  );
+
+  /// See [PersonLocalModel.phoneNumber].
+  static final phoneNumber = obx.QueryStringProperty<PersonLocalModel>(
+    _entities[2].properties[2],
+  );
+
+  /// See [PersonLocalModel.latestUpdateAt].
+  static final latestUpdateAt = obx.QueryDateProperty<PersonLocalModel>(
+    _entities[2].properties[3],
+  );
+
+  /// see [PersonLocalModel.payments]
+  static final payments =
+      obx.QueryBacklinkToMany<PaymentInfoLocalModel, PersonLocalModel>(
+        PaymentInfoLocalModel_.person,
       );
 }

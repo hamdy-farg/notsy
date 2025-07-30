@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:notsy/core/commondomain/utils/extenstion/localize_money_extension.dart';
+import 'package:notsy/core/utils/custom_method/is_arabic_method.dart';
 import 'package:notsy/core/utils/helper/extension_function/size_extension.dart';
 
+import '../../../../../l10n/app_localizations.dart';
 import '../../add_new_payment/add_new_payment_view_model.dart';
 
 class PaymentSummaryInfoRow extends StatelessWidget {
@@ -24,8 +27,10 @@ class PaymentSummaryInfoRow extends StatelessWidget {
   final Color valueColor;
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
       children: [
         Text(
           label,
@@ -35,13 +40,14 @@ class PaymentSummaryInfoRow extends StatelessWidget {
             fontSize: 14.w,
           ),
         ),
-
         if (isHaveValue)
           Expanded(
             child: Align(
-              alignment: Alignment.centerRight,
+              alignment: context.isArabic == true
+                  ? Alignment.centerLeft
+                  : Alignment.centerRight,
               child: Text(
-                "\$ ${value}",
+                "${context.money(value)}",
                 style:
                     valueTextStyle ??
                     TextStyle(

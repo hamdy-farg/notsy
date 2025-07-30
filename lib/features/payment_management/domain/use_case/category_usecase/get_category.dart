@@ -6,12 +6,11 @@ import 'package:notsy/features/payment_management/domain/entities/payment_entiti
 import '../../repositories/Category_management_repository/dart/category_repository.dart';
 
 @injectable
-class GetCategory
-    extends BaseParamsUseCase<CategoryEntity, int> {
+class GetCategory extends BaseParamsUseCase<CategoryEntity, int> {
   GetCategory(this.repository);
   final CategoryRepository repository;
   @override
-  Future<ApiResultModel<CategoryEntity>> call(id) async{
+  Future<ApiResultModel<CategoryEntity>> call(id) async {
     // TODO: implement call
     return repository.getCategory(id: id);
   }

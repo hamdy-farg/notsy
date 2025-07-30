@@ -1,90 +1,139 @@
+import 'package:flutter/material.dart';
+import 'package:notsy/core/commondomain/utils/extenstion/localize_money_extension.dart';
 import 'package:notsy/features/payment_management/domain/entities/payment_entities/category_entity.dart';
+import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
 
-extension CategoryListExtension on List<CategoryEntity> {
-  CategoryEntity getEffectiveCategory({
+import '../../../../l10n/app_localizations.dart';
+
+extension PymentListExctension on List<PaymentInfoEntity> {
+  PaymentInfoEntity getEffectiveCategory({
     List<String> highPriorityNames = const ['unpaid', 'underpaid'],
   }) {
     // Try to find a high-priority category like "Unpaid" or "Underpaid"
 
     final index = indexWhere(
-      (cat) => highPriorityNames.contains(cat.category_status?.name),
+      (payment) => highPriorityNames.contains(payment.paymentStatusEnum?.name),
     );
 
     // Return the matching category if found, or first category, or fallback
     if (index != -1) {
       return this[index];
-    } else if (isNotEmpty) {
+    } else {
       return first;
-    } else {
-      return CategoryEntity(name: 'Default', color_value: 'D1D5DB');
     }
   }
 
-  int getEffectiveCategoryColor() {
+  int getEffectivePaymentColor() {
     final effective = getEffectiveCategory();
-    if (effective.color_value == null) {
+    if (effective.colorValue == null) {
       return int.tryParse(
-            "0xff${effective.original_color_value?.replaceAll('#', '')}",
+            "0xff${effective.category?.originalColorValue?.replaceAll('#', '')}",
           ) ??
           0xffD1D5DB;
     } else {
       return int.tryParse(
-            "0xff${effective.color_value?.replaceAll('#', '')}",
+            "0xff${effective.category?.originalColorValue?.replaceAll('#', '')}",
           ) ??
           0xffD1D5DB;
     }
   }
 
-  String getEffectiveCategoryAmount() {
-    final unpaid_index = indexWhere(
-      (cat) => cat.category_status?.name == "unpaid",
-    );
-    final underpaid_index = indexWhere(
-      (cat) => cat.category_status?.name == "underpaid",
-    );
+  String getEffectivePaymentSummary(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    double totalPaid = 0;
+    double totalCost = 0;
+    for (var element in this) {
+      totalPaid += element.amountPaid ?? 0;
+      totalCost += (element.category?.cost ?? 0) * (element.quantity ?? 0);
+    }
 
-    if (unpaid_index != -1) {
-      return "\$${this[unpaid_index].amount_paid ?? 0}// ";
-    } else if (underpaid_index != -1) {
-      return "\$${this[underpaid_index].amount_paid}/ //${(this[underpaid_index].cost ?? 0) * (this[underpaid_index].quantity ?? 0)} ";
+    if (totalCost != totalPaid && totalPaid == 0) {
+      return "${t?.unpaid} ${context.money(totalCost)} / $totalCost ";
+    } else if (totalCost != totalPaid && totalPaid < totalCost) {
+      return "${t?.need} ${context.money(totalCost - totalPaid)} / $totalCost ";
+    } else if (totalCost < totalPaid) {
+      return "${t?.over} ${context.money((totalPaid ?? 0) - (totalCost ?? 0))} / ";
     } else {
-      double total_amount = 0;
-      for (var element in this) {
-        total_amount = total_amount + (element.amount_paid ?? 0);
-      }
-      return "\$${total_amount ?? 0}// ";
+      return "done";
     }
   }
 
-  String getEffectiveCategoryDescription() {
+  Color getEffectiveSummaryColor(BuildContext context) {
+    final result = getEffectivePaymentSummary(context);
+    final t = AppLocalizations.of(context);
+    if (result.contains("${t?.unpaid}")) {
+      return Colors.red;
+    }
+
+    if (result.contains("${t?.need}")) {
+      return Colors.orange;
+    }
+    if (result.contains("${t?.over}")) {
+      return Colors.purple;
+    }
+    return Colors.green;
+  }
+
+  String getEffectivePaymentDescription() {
     final unpaid_index = indexWhere(
-      (cat) => cat.category_status?.name == "unpaid",
+      (payment) => payment.paymentStatusEnum?.name == "unpaid",
     );
     final underpaid_index = indexWhere(
-      (cat) => cat.category_status?.name == "underpaid",
+      (payment) => payment.paymentStatusEnum?.name == "underpaid",
     );
 
+    double totalCost = 0;
+    double amountPaid = 0;
     if (unpaid_index != -1) {
-      return "Need \$${(this[unpaid_index].cost ?? 0) * (this[unpaid_index].quantity ?? 0)}";
+      totalCost =
+          (this[unpaid_index].category?.cost ?? 0) *
+          (this[unpaid_index].quantity ?? 0);
+      return "Need \$$totalCost";
     } else if (underpaid_index != -1) {
-      return "-\$${((this[underpaid_index].cost ?? 0) * (this[underpaid_index].quantity ?? 0)) - (this[underpaid_index].amount_paid?.toDouble() ?? 0)}";
+      totalCost =
+          (this[underpaid_index].category?.cost ?? 0) *
+          (this[underpaid_index].quantity ?? 0);
+      amountPaid = (this[underpaid_index].amountPaid?.toDouble() ?? 0);
+
+      return "-\$${totalCost - amountPaid}";
     } else {
-      double total_cost = 0;
-      double total_amount = 0;
       for (var element in this) {
-        total_cost = total_cost + (element.cost ?? 0) * (element.quantity ?? 0);
-        total_amount = total_amount + (element.amount_paid ?? 0);
+        totalCost =
+            totalCost + (element.category?.cost ?? 0) * (element.quantity ?? 0);
+        amountPaid = amountPaid + (element.amountPaid ?? 0);
       }
-      return """${(total_cost - (total_amount)) == 0 ? "" : "over paid : ${(total_amount - (total_cost))}"}""";
+      return """${(totalCost - (amountPaid)) == 0 ? "" : "over paid : ${(amountPaid - (totalCost))}"}""";
     }
   }
 }
 
-extension CategoryEntityExtension on CategoryEntity {
-  int getEffectiveCategoryColor() {
-    return int.tryParse(
-          "0xff${this.original_color_value?.replaceAll('#', '')}",
-        ) ??
-        0xffD1D5DB;
+extension PymentExctension on PaymentInfoEntity {
+  String getEffectivePaymentSummary() {
+    double totalPaid = amountPaid ?? 0;
+    double totalCost = (category?.cost ?? 0) * (quantity ?? 0);
+
+    if (totalCost != totalPaid && totalPaid == 0) {
+      return "unpaid $totalCost / $totalCost ";
+    } else if (totalCost != totalPaid && totalPaid < totalCost) {
+      return "Need ${totalCost - totalPaid} / $totalCost ";
+    } else if (totalCost < totalPaid) {
+      return "over ${totalPaid ?? 0} / ${totalCost ?? 0} ";
+    } else {
+      return "done";
+    }
+  }
+
+  Color getEffectiveSummaryColor() {
+    final result = getEffectivePaymentSummary();
+    if (result.contains("unpaid")) {
+      return Colors.red;
+    }
+    if (result.contains("Need")) {
+      return Colors.orange;
+    }
+    if (result.contains("over")) {
+      return Colors.purple;
+    }
+    return Colors.green;
   }
 }

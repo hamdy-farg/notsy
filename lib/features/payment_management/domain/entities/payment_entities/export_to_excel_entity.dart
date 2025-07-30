@@ -1,11 +1,12 @@
-import 'package:excel/excel.dart';
+import '../person_entity/dart/person_Entity.dart';
 
 class ExportToExcelEntity {
-  final String baseFileName;
-  final Excel excelFile; // structured rows of data
-
+  final List<String> selectedCategoryName;
+  final List<PersonEntity> personList;
+  final String fileName;
   const ExportToExcelEntity({
-    required this.baseFileName,
-    required this.excelFile,
+    this.selectedCategoryName = const ["All"],
+    required this.personList,
+    required this.fileName,
   });
 }

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6420331599651958668",
-      "lastPropertyId": "9:3480966842126916344",
+      "lastPropertyId": "10:8047184986126990777",
       "name": "CategoryLocalModel",
       "properties": [
         {
@@ -20,23 +20,8 @@
           "type": 9
         },
         {
-          "id": "3:4904786589903045449",
-          "name": "color_value",
-          "type": 9
-        },
-        {
-          "id": "4:2171641816419615243",
-          "name": "quantity",
-          "type": 8
-        },
-        {
           "id": "5:3779686883364740820",
           "name": "cost",
-          "type": 8
-        },
-        {
-          "id": "6:7649954701181082518",
-          "name": "amount_paid",
           "type": 8
         },
         {
@@ -45,13 +30,8 @@
           "type": 9
         },
         {
-          "id": "8:8002286578458877461",
-          "name": "category_status",
-          "type": 9
-        },
-        {
-          "id": "9:3480966842126916344",
-          "name": "original_color_value",
+          "id": "10:8047184986126990777",
+          "name": "originalColorValue",
           "type": 9
         }
       ],
@@ -59,7 +39,7 @@
     },
     {
       "id": "2:4401135258923804491",
-      "lastPropertyId": "7:7406303197173765578",
+      "lastPropertyId": "14:561571178383847306",
       "name": "PaymentInfoLocalModel",
       "properties": [
         {
@@ -67,16 +47,6 @@
           "name": "id",
           "type": 6,
           "flags": 1
-        },
-        {
-          "id": "2:6280263842091853691",
-          "name": "name",
-          "type": 9
-        },
-        {
-          "id": "3:4576909031677871237",
-          "name": "phone_number",
-          "type": 9
         },
         {
           "id": "4:5262847613753833115",
@@ -89,22 +59,81 @@
           "type": 9
         },
         {
-          "id": "6:3094619609554494469",
-          "name": "payment_method",
+          "id": "8:6969957882130757003",
+          "name": "paymentMethod",
           "type": 9
+        },
+        {
+          "id": "9:3451276106949479052",
+          "name": "colorValue",
+          "type": 9
+        },
+        {
+          "id": "10:5782381024188522524",
+          "name": "paymentStatus",
+          "type": 9
+        },
+        {
+          "id": "11:9166463856410089179",
+          "name": "amountPaid",
+          "type": 8
+        },
+        {
+          "id": "12:6250028849790838016",
+          "name": "quantity",
+          "type": 8
+        },
+        {
+          "id": "13:8567404068171779626",
+          "name": "categoryId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "1:6291433111087711359",
+          "relationTarget": "CategoryLocalModel"
+        },
+        {
+          "id": "14:561571178383847306",
+          "name": "personId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "2:7798925566780937235",
+          "relationTarget": "PersonLocalModel"
         }
       ],
-      "relations": [
+      "relations": []
+    },
+    {
+      "id": "3:9099206626091174092",
+      "lastPropertyId": "4:4329073757361443825",
+      "name": "PersonLocalModel",
+      "properties": [
         {
-          "id": "2:1034562958712804097",
-          "name": "category_list",
-          "targetId": "1:6420331599651958668"
+          "id": "1:3687521591040980755",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2396441027020439167",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:699422220847866024",
+          "name": "phoneNumber",
+          "type": 9
+        },
+        {
+          "id": "4:4329073757361443825",
+          "name": "latestUpdateAt",
+          "type": 10
         }
-      ]
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "2:4401135258923804491",
-  "lastIndexId": "0:0",
+  "lastEntityId": "3:9099206626091174092",
+  "lastIndexId": "2:7798925566780937235",
   "lastRelationId": "2:1034562958712804097",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
@@ -112,10 +141,19 @@
   "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
-    7406303197173765578
+    7406303197173765578,
+    4904786589903045449,
+    2171641816419615243,
+    7649954701181082518,
+    8002286578458877461,
+    3480966842126916344,
+    6280263842091853691,
+    4576909031677871237,
+    3094619609554494469
   ],
   "retiredRelationUids": [
-    7121663207257609299
+    7121663207257609299,
+    1034562958712804097
   ],
   "version": 1
 }

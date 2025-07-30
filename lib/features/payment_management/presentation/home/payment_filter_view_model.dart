@@ -6,7 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:injectable/injectable.dart';
 import 'package:notsy/core/commondomain/entities/based_api_result_models/api_result_model.dart';
 import 'package:notsy/core/commondomain/usecase/base_param_usecase.dart';
-import 'package:notsy/features/payment_management/domain/entities/payment_entities/payment_info_entity.dart';
+import 'package:notsy/features/payment_management/domain/entities/person_entity/dart/person_Entity.dart';
 import 'package:notsy/features/payment_management/domain/use_case/category_usecase/get_all_category.dart';
 import 'package:notsy/features/payment_management/domain/use_case/payment_usecase/filter_payment_info.dart';
 
@@ -19,30 +19,35 @@ class HomePaymentFilterViewModel extends BaseViewModel {
     required this.filter,
     required this.getAllPaymentCategories,
   }) {
-    searchController.addListener(filterPaymentInfo);
-    selectedCategoryName.addListener(filterPaymentInfo);
-    currentPage.addListener(filterPaymentInfo);
+    searchController.addListener(filterPersonInfo);
+    selectedCategoryName.addListener(filterPersonInfo);
+    currentPage.addListener(filterPersonInfo);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(milliseconds: 100));
+      getAllPaymentCategory();
+      filterPersonInfo();
+    });
   }
-  List<PaymentInfoEntity> paymentList = <PaymentInfoEntity>[];
-  late final pagingController = PagingController<int, PaymentInfoEntity>(
+  List<PersonEntity> paymentList = <PersonEntity>[];
+  late final pagingController = PagingController<int, PersonEntity>(
     getNextPageKey: (state) =>
         state.lastPageIsEmpty ? null : state.nextIntPageKey,
-    fetchPage: (pageKey) {
-      currentPage.value = pageKey;
-      return paymentList;
+    fetchPage: (pageKey) async {
+      final result = await filterPersonInfo(page: pageKey);
+      return result;
     },
   );
 
   //
   final TextEditingController searchController = TextEditingController();
   //
-  ValueNotifier<int> currentPage = ValueNotifier<int>(0);
+  ValueNotifier<int> currentPage = ValueNotifier<int>(1);
   //
   ValueNotifier<List<String>> selectedCategoryName =
       ValueNotifier<List<String>>(["All"]);
   //
 
-  final FilterPaymentInfo filter;
+  final FilterPersonPayments filter;
   final GetAllPaymentCategories getAllPaymentCategories;
   //
   final StreamController<ApiResultModel<List<CategoryEntity>>>
@@ -51,69 +56,63 @@ class HomePaymentFilterViewModel extends BaseViewModel {
   StreamController<ApiResultModel<List<CategoryEntity>>>
   get category_list_result => _category_list_result;
   //
-  final StreamController<ApiResultModel<List<PaymentInfoEntity>>>
+  final StreamController<ApiResultModel<List<PersonEntity>>>
   _payemnt_list_result =
-      StreamController<ApiResultModel<List<PaymentInfoEntity>>>.broadcast();
+      StreamController<ApiResultModel<List<PersonEntity>>>.broadcast();
 
-  StreamController<ApiResultModel<List<PaymentInfoEntity>>>
+  StreamController<ApiResultModel<List<PersonEntity>>>
   get payemnt_list_result => _payemnt_list_result;
   //
   ApiResultModel<List<CategoryEntity>>? categoryList;
 
-  Future<void> filterPaymentInfo() async {
-    log(
-      "try trye${searchController.value}, ${currentPage.value} , ${selectedCategoryName.value}",
-    );
-    final ApiResultModel<List<PaymentInfoEntity>>? result =
+  Future<List<PersonEntity>> filterPersonInfo({int? page}) async {
+    // log(
+    //   "try trye${searchController.value.text}, ${currentPage.value - 1} , ${selectedCategoryName.value}",
+    // );
+
+    final ApiResultModel<List<PersonEntity>>? result =
         await executeParamsUseCase(
           useCase: filter,
           query: FilterPaymentParamsEntity(
             input: searchController.text,
-            page: currentPage.value,
+            page: page ?? currentPage.value,
             categoryList: selectedCategoryName.value,
           ),
         );
 
     _payemnt_list_result.add(result!);
-
-    notifyListeners();
+    return (result as Success<List<PersonEntity>>).data;
+    // notifyListeners();
   }
 
-  Future<void> setCurrentPage(int page) async {
-    if (currentPage.value != page) {
-      currentPage.value = page;
-    } else {
-      // Force trigger
-      await filterPaymentInfo();
-    }
-  }
+  // Future<void> setCurrentPage(int page) async {
+  //   if (currentPage.value != page) {
+  //     currentPage.value = page;
+  //   } else {
+  //     // Force trigger
+  //     // await filterPaymentInfo();
+  //   }
+  // }
 
   Future<void> getAllPaymentCategory() async {
     final result = await executeParamsUseCase(
       useCase: getAllPaymentCategories,
       query: NoParams(),
     );
-    log("category ${(result as Success<List<CategoryEntity>>).data}");
-    _category_list_result.add(result);
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    log("dispooooooose1");
-
-    // TODO: implement
-    //  dispose
+    // log("category ${(result as Success<List<CategoryEntity>>).data}");
+    _category_list_result.add(result!);
   }
 
   @override
   void onDispose() {
-    log("dispooooooose");
     searchController.dispose();
     currentPage.dispose();
     selectedCategoryName.dispose();
     _payemnt_list_result.close();
+    _category_list_result.close();
+    pagingController.dispose();
+
+    log("dispoooooooos home");
     // TODO: implement dispose
   }
 }

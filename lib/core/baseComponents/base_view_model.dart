@@ -17,18 +17,19 @@ class BaseViewModel extends ChangeNotifier {
   }) async {
     showLoadingIndicator(launchLoader);
     final ApiResultModel<Type> _apiResultModel = await useCase(query);
+    await Future.delayed(Duration(milliseconds: 400));
     if (_apiResultModel is Success) {
       showLoadingIndicator(false);
       return _apiResultModel;
     } else {
       showLoadingIndicator(false);
-
       return _apiResultModel is Failure ? _apiResultModel : null;
     }
   }
 
   void showLoadingIndicator(bool show) {
     _toggleLoading.add(show);
+    notifyListeners();
   }
 
   void onDispose() {}
